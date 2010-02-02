@@ -13,7 +13,7 @@
 			
 			if ($this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName) {
 				($this->params['controller'] == 'control_panel') || $controller = Inflector::humanize($this->params['controller']);
-				($this->params['action'] == 'index') ? $action = $action = __('List', true) : Inflector::humanize($this->params['action']);
+				($this->params['action'] == 'index') ? $action = $action = __('List', true) : $action = Inflector::humanize($this->params['action']);
 
 				if (isset($controller)) {
 					$this->Html->addCrumb($controller, array('action' => 'index'));
