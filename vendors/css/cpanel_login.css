@@ -1,0 +1,39 @@
+@import	"reset.css";
+
+body {
+	position: relative;
+	font: normal 12px Helvetica, Arial, sans-serif;
+	background: #e1e1e1 url(../img/login-setup-back.jpg) repeat-x;
+}
+
+#wrapper {
+	margin: 10% auto;
+	width: 480px; min-height: 300px;
+}
+
+#loginPanel {
+	min-height: 270px;
+	padding: 20px 0;
+	background-color: white;
+	-moz-box-shadow: 2px 2px 5px #666;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
+	border-radius: 15px;
+}
+
+#loginPanel form {
+	margin: 50px auto;
+	width: 310px;
+}
+
+#loginPanel div.input {
+	margin-bottom: 20px;
+}
+
+#loginPanel label {
+	display: block;
+}
+
+#cpanelUsername, #cpanelPassword, #cpanelRePassword {
+	width: 300px;
+}
