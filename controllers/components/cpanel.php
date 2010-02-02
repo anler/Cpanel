@@ -40,7 +40,7 @@
 				}
 				
 				// Configure Auth Component
-				$controller->Auth->autoRedirect = true;
+				$controller->Auth->autoRedirect = false;
 				$controller->Auth->loginAction = Cpanel::getInstance()->loginRoute;
 				$controller->Auht->loginRedirect = Cpanel::getInstance()->dashboardRoute;
 				
@@ -48,9 +48,9 @@
 				if ($controller->params[Cpanel::getInstance()->routingAdmin] && @$controller->params['plugin'] == Cpanel::getInstance()->pluginName) {
 					$controller->params['action'] = str_replace(Cpanel::getInstance()->routingAdmin . '_', '', $controller->params['action']);
 					
-					foreach (array(Cpanel::getInstance()->loginAction, Cpanel::getInstance()->setupAction) as $publicAdminAction) {
+					foreach (array('login', 'setup') as $publicAdminAction) {
 						($controller->params['action'] == $publicAdminAction) && $controller->Auth->allow($publicAdminAction);
-						($controller->params['action'] == Cpanel::getInstance()->setupAction) && ($controller->Auth->authenticate = ClassRegistry::getObject('User'));
+						($controller->params['action'] == 'setup') && ($controller->Auth->authenticate = ClassRegistry::getObject('User'));
 					}
 				}
 			}
@@ -87,27 +87,24 @@
 			
 			$this->setupMode 				= false;
 			
-			$this->modulesController 		= 'modules';
+			$this->modulesController 		= 'control_panel';
+			$this->menuController			= 'menu';
 			$this->authController	 		= 'users';
+			
 			$this->authModel				= 'User';
 			
-			$this->loginAction				= 'login';
-			$this->setupAction				= 'setup';
+			// Auth Routes
+			$this->loginRoute				= array('controller' => $this->authController, 'action' => 'login', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->setupRoute				= array('controller' => $this->authController, 'action' => 'setup', $this->routingAdmin => true, 'plugin' => $this->pluginName);
 			
-			$this->dashboard				= 'dashboard';
-			$this->list_menu_sections		= 'list_menu_sections';
-			// @todo change item for section
-			$this->new_menu_item			= 'new_menu_item';
-			$this->edit_menu_sections		= 'edit_menu_sections';
+			// Modules Route
+			$this->dashboardRoute 			= array('controller' => $this->modulesController, 'action' => 'dashboard', $this->routingAdmin => true, 'plugin' => $this->pluginName);
 			
-			$this->loginRoute				= array('controller' => $this->authController, 'action' => $this->loginAction, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->setupRoute				= array('controller' => $this->authController, 'action' => $this->setupAction, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->dashboardRoute 			= array('controller' => $this->modulesController, 'action' => $this->dashboard, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			
-			$this->listMenuSectionsRoute	= array('controller' => $this->modulesController, 'action' => $this->list_menu_sections, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			// $this->newMenuItemRoute			= array('controller' => $this->modulesController, 'action' => $this->new_menu_item, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->newMenuSectionRoute		= array('controller' => $this->modulesController, 'action' => $this->new_menu_item, $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->editMenuSectionsRoute 	= array('controller' => $this->modulesController, 'action' => $this->edit_menu_sections, $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			// Menu Routes
+			$this->listMenuSectionsRoute	= array('controller' => $this->menuController, 'action' => 'index', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->newMenuSectionRoute		= array('controller' => $this->menuController, 'action' => 'add', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->editMenuSectionsRoute 	= array('controller' => $this->menuController, 'action' => 'edit', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->deleteMenuSectionRoute	= array('controller' => $this->menuController, 'action' => 'delete', $this->routingAdmin => true, 'plugin' => $this->pluginName);
 		}
 		
 		private function __clone() {}

@@ -8,6 +8,25 @@
 		
 		function __contruct() {}
 		
+		function getCrumbs() {
+			$this->Html->addCrumb(__('Control Panel', true), ClassRegistry::init('Cpanel')->dashboardRoute);
+			
+			if ($this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName) {
+				($this->params['controller'] == 'control_panel') || $controller = Inflector::humanize($this->params['controller']);
+				($this->params['action'] == 'index') ? $action = $action = __('List', true) : Inflector::humanize($this->params['action']);
+
+				if (isset($controller)) {
+					$this->Html->addCrumb($controller, array('action' => 'index'));
+					$this->Html->addCrumb($action);
+				} else {
+					$this->Html->addCrumb($action);
+				}
+			}
+			
+			
+			return $this->Html->getCrumbs(' > ');
+		}
+		
 		function gotoLogin($msg = '') {
 			$msg || $msg = __('Go to login page', true);
 			
@@ -59,12 +78,7 @@
 		}
 		
 		function sectionTitle($title = null) {
-			if (null !== $title) {
-				$this->sectionTitle = $title;
-				return;
-			}
-			
-			return @$this->sectionTitle;
+			return Inflector::humanize($this->params['controller']);
 		}
 		
 		function newSectionLink($message = '', $options = array()) {
@@ -87,6 +101,7 @@
 		}
 		
 		function _adminMenuTools() {
+			// debug(ClassRegistry::getObject('Cpanel')->listMenuSectionsRoute);exit;
 			$output = '';
 			if (Configure::read('debug')) {
 				$output .= '<li>';

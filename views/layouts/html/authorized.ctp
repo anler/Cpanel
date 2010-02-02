@@ -30,7 +30,7 @@
 			
 			<div id="board">
 				<div class="navigation-bar">
-					<div class="breadcrumbs"><?php echo $html->getCrumbs(' > ') ?></div>
+					<div class="breadcrumbs"><?php echo $cpanel->getCrumbs(' > ') ?></div>
 					<?= $cpanel->levelUp() ?> <!-- ? class="level-up" -->
 				</div>
 				
