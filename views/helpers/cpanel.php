@@ -62,7 +62,7 @@
 		}
 		
 		function logout() {
-			return $this->Html->link(__('Logout', true), array('controller' => 'users', 'action' => 'logout'), array('id' => 'logout'));
+			return $this->Html->link(__('Logout', true), ClassRegistry::init('Cpanel')->logoutRoute, array('id' => 'logout'));
 		}
 		
 		function levelUp()
@@ -95,10 +95,11 @@
 			
 			// Fetch sections from database
 			// @todo Caching
-			$sections = ClassRegistry::init('CpanelMenu')->getSections();
+			$sections = ClassRegistry::init('Cpanel.CpanelMenu')->getSections();
 			
 			// $output .= $this->_organize($items, 2); - I found the tree helper does this probably more efficient
-			$output .= $this->Tree->generate($sections, array('element' => 'menu'));
+			$element = $this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName ? 'menu' : '../../plugins/' . ClassRegistry::init('Cpanel')->pluginName . '/views/elements/menu';
+			$output .= $this->Tree->generate($sections, array('element' => $element));
 			
 			return $output;
 		}

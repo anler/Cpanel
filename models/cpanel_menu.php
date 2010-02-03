@@ -14,46 +14,7 @@
 		
 		var $actsAs = array('Tree');
 		
-		// function newItem($data) {
-		// 	$this->set($data);
-		// 	$success = false;
-		// 
-		// 	if ($success = $this->validates()) {
-		// 		$tokens = String::tokenize($data[$this->name]['match_route']);
-		// 		
-		// 		foreach ($tokens as $token) {
-		// 			// There are three different cases
-		// 			// 1- :param => value
-		// 			// 2- pass => array('value1', 'value2')
-		// 			// 3- named => array('param1' => 'value1', 'param2' => 'value2')
-		// 			switch (true) {
-		// 				// Case 1 - :param => value
-		// 				case count($param = explode('=>', $token)) > 1:
-		// 					$param = MenuItemRoute::cleanParam($param);
-		// 					MenuItemRoute::getInstance()->route[$param['name']] = $param['value'];
-		// 					break;
-		// 				// Case 2 - named => array('param1' => 'value1', 'param2' => 'value2', ...)
-		// 				case count($param = explode(':', $token)) > 1:
-		// 					$param = MenuItemRoute::cleanParam($param);
-		// 					MenuItemRoute::getInstance()->route[] = $param['name'] . ':' . $param['value'];;
-		// 					break;
-		// 				// Case 3 - pass => array('value1', 'value2', ...)
-		// 				default:
-		// 					$param = MenuItemRoute::cleanParam($token);
-		// 					MenuItemRoute::getInstance()->route[] = $param;
-		// 					break;
-		// 			}
-		// 		}
-		// 		
-		// 		$this->data[$this->name]['match_route'] = serialize(MenuItemRoute::getInstance());
-		// 		
-		// 		$succes = $this->save(null, false);
-		// 	}
-		// 	
-		// 	return $success;
-		// }
-		
-		function newSection($data) {
+		function saveSection($data) {
 			$this->set($data);
 			$success = false;
 
@@ -90,6 +51,36 @@
 			}
 			
 			return $success;
+		}
+		
+		function readSection($id) {
+			$section = $this->read(array('id', 'parent_id', 'name', 'match_route'), $id);
+			
+			$routes = array();
+			$Route = unserialize($section[$this->name]['match_route']);
+			
+			foreach ($Route->route as $key => $value) {
+				switch (true) {
+					case is_numeric($key):
+						$routes[] = $value;
+						break;
+						
+					// @todo Extends array('controller',...) to support customs params specified
+					// 		 in routes.php config file
+					case in_array($key, array('controller', 'action', 'plugin')):
+						$routes[] = ":$key => $value";
+						break;
+					
+					case is_string($key):
+						$routes[] = "$key:$value";
+						break;
+				}
+			}
+
+			$section[$this->name]['match_route'] = implode(', ', $routes);
+			$section[$this->name]['match_route'] = trim($section[$this->name]['match_route'], ', ');
+			
+			return $section;
 		}
 		
 		function findSections() {

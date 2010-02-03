@@ -1,18 +1,20 @@
-<div class="menu-sections form">
-<?php echo $form->create('CpanelMenuItem');?>
+<?php echo $form->create('CpanelMenu', array('url' => ClassRegistry::getObject('Cpanel')->editMenuSectionsRoute)) ?>
 	<fieldset>
- 		<legend><?php __('Edit Menu Sections');?></legend>
-	<?php
-		echo $form->input('id');
-		echo $form->input('parent_id', array( 'type' => 'select', 'options' => $items, 'empty' => __('Root', true)));
-		echo $form->input('name');
-		echo $form->input('match_route');
-	?>
+		<legend>Help</legend>
+		
+		Route - :controller => some_controller, :action => some_action, param1, named2:param2, ...
+		
 	</fieldset>
-<?php echo $form->end(__('Save Changes', true)) ?>
-</div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__('Delete', true), array('action' => 'delete', $form->value('CpanelMenuItem.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $form->value('CpanelMenuItem.name'))); ?></li>
-	</ul>
-</div>
+	
+	<br />
+	
+	<fieldset id="new_cpanel_section">
+		<legend>New Cpanel Section</legend>
+		
+		<?php echo $form->input('id') ?>
+		<?php echo $form->input('parent_id', array('label' => __('Parent Item', true), 'type' => 'select', 'options' => $items, 'selected' => $this->data['CpanelMenu']['parent_id'], 'empty' => __('Root Item', true))) ?>
+		<?php echo $form->input('name') ?>
+		<?php echo $form->input('match_route', array('type' => 'text')) ?>
+		
+	</fieldset>
+<?php echo $form->end(__('Save it', true)) ?>

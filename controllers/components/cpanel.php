@@ -35,7 +35,7 @@
 				$setupMode = Cpanel::getInstance()->setupMode = empty($result);
 
 				// If setup needed, redirect to setup page
-				if ($setupMode && $controller->action != Cpanel::getInstance()->routingAdmin . '_' . Cpanel::getInstance()->setupAction) {
+				if ($setupMode && $controller->action != Cpanel::getInstance()->routingAdmin . '_setup') {
 					$controller->redirect(Cpanel::getInstance()->setupRoute);
 				}
 				
@@ -95,6 +95,7 @@
 			
 			// Auth Routes
 			$this->loginRoute				= array('controller' => $this->authController, 'action' => 'login', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->logoutRoute				= array('controller' => $this->authController, 'action' => 'logout', $this->routingAdmin => true, 'plugin' => $this->pluginName);
 			$this->setupRoute				= array('controller' => $this->authController, 'action' => 'setup', $this->routingAdmin => true, 'plugin' => $this->pluginName);
 			
 			// Modules Route

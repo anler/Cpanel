@@ -3,8 +3,4 @@
  */
 	$adminPrefix = Configure::read('Routing.admin');
 	Router::connect("/$adminPrefix", array('controller' => 'users', 'action' => 'login', "$adminPrefix" => true, 'plugin' => 'cpanel'));
-	Router::connect("/$adminPrefix/setup", array('controller' => 'users', 'action' => 'setup', "$adminPrefix" => true, 'plugin' => 'cpanel'));	
-	Router::connect("/$adminPrefix/logout", array('controller' => 'users', 'action' => 'logout', "$adminPrefix" => true, 'plugin' => 'cpanel'));
-	Router::connect("/$adminPrefix/dashboard", array('controller' => 'control_panel', 'action' => 'dashboard', "$adminPrefix" => true, 'plugin' => 'cpanel'));
-	// Router::connect("/$adminPrefix/menu/:action/*", array("$adminPrefix" => true, 'plugin' => 'cpanel'));
-	Router::connect("/$adminPrefix/:plugin/:controller/:action/*", array("$adminPrefix" => true));
+	Router::connect(":plugin/$adminPrefix/:controller/:action/*", array("$adminPrefix" => true));
