@@ -14,6 +14,21 @@
 		
 		var $actsAs = array('Tree');
 		
+		function move($id, $direction) {
+			$success = false;
+			switch ($direction) {
+				case 'up':
+					$success = $this->moveup($id, true);
+					break;
+				
+				case 'down':
+					$success = $this->movedown($id);
+					break;
+			}
+			
+			return $success;
+		}
+		
 		function saveSection($data) {
 			$this->set($data);
 			$success = false;
@@ -88,17 +103,12 @@
 
 			return $sections;
 		}
-		// Changed for getSections
+		
 		function getSections() {
 			$items = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'match_route')));
 
 			return $items;
 		}
-		// function populateMenu() {
-		// 	$items = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'match_route')));
-		// 
-		// 	return $items;
-		// }
 	}
 	
 	
@@ -133,6 +143,14 @@
 			}
 			
 			return $result;
+		}
+		
+		public static function serializeRoute($route) {
+			
+		}
+		
+		public static function unserializeRoute($route) {
+			
 		}
 	}
 	

@@ -6,8 +6,6 @@
 	{
 		var $helpers = array('Html', 'Form', 'Tree');
 		
-		function __contruct() {}
-		
 		function getCrumbs() {
 			$this->Html->addCrumb(__('Control Panel', true), ClassRegistry::init('Cpanel')->dashboardRoute);
 			
@@ -24,16 +22,17 @@
 				} else {
 					$this->Html->addCrumb(Inflector::humanize($this->params['action']));
 				}
+			} else {
+				if (!empty($this->params['named']['section'])) {
+					$sections = ClassRegistry::init('CpanelMenu')->getpath($this->params['named']['section'], array('id', 'name', 'match_route'));
+					foreach ($sections as $section) {
+						$route = unserialize($section['CpanelMenu']['match_route']);
+						debug($route);exit;
+					}
+				}
 			}
 			
-			
 			return $this->Html->getCrumbs(' > ');
-		}
-		
-		function gotoLogin($msg = '') {
-			$msg || $msg = __('Go to login page', true);
-			
-			return $this->Html->link($msg, ClassRegistry::getObject('Cpanel')->loginRoute);
 		}
 		
 		function gotoHome($msg = '') {
@@ -57,26 +56,29 @@
 			return $this->Html->link($text, ClassRegistry::getObject('Cpanel')->dashboardRoute, array('id' => 'dashboard'));
 		}
 		
-		function account() {
-			return $this->Html->link(__('My Account', true), '', array('id' => 'my-account'));
+		function account($text = null) {
+			if (null === $text) {
+				$text = __('My Account', true);
+			}
+			return $this->Html->link($text, '', array('id' => 'my-account'));
 		}
 		
-		function logout() {
-			return $this->Html->link(__('Logout', true), ClassRegistry::init('Cpanel')->logoutRoute, array('id' => 'logout'));
+		function logout($text = null) {
+			if (null === $text) {
+				$text = __('Logout', true);
+			}
+			return $this->Html->link($text, ClassRegistry::init('Cpanel')->logoutRoute, array('id' => 'logout'));
 		}
 		
-		function levelUp()
-		{
+		function levelUp() {
 			
 		}
 		
-		function sectionTabs()
-		{
+		function sectionTabs() {
 			
 		}
 		
-		function subsectionTabs()
-		{
+		function subsectionTabs() {
 			
 		}
 		
@@ -97,8 +99,9 @@
 			// @todo Caching
 			$sections = ClassRegistry::init('Cpanel.CpanelMenu')->getSections();
 			
-			// $output .= $this->_organize($items, 2); - I found the tree helper does this probably more efficient
+			// $output .= $this->_organize($items, 2); - I found the tree helper does this and probably more efficient
 			$element = $this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName ? 'menu' : '../../plugins/' . ClassRegistry::init('Cpanel')->pluginName . '/views/elements/menu';
+			
 			$output .= $this->Tree->generate($sections, array('element' => $element));
 			
 			return $output;

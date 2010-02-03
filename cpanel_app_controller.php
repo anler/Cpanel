@@ -1,5 +1,12 @@
 <?php
 	/**
+	 * @todo Move this to other place
+	 */
+	defined('failure') || define('failure', 'flash/failure');
+	defined('notice') || define('notice', 'flash/notice');
+	defined('success') || define('success', 'flash/success');
+	
+	/**
 	* 
 	*/
 	class CpanelAppController extends AppController

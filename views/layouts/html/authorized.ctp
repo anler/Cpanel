@@ -34,11 +34,11 @@
 					<?= $cpanel->levelUp() ?> <!-- ? class="level-up" -->
 				</div>
 				
-				<div id="section-title"><h2><?php echo $cpanel->sectionTitle() ?></h2></div>
-				
 				<div class="flashes">
 					<?php $session->flash() ?>
 				</div>
+				
+				<div id="section-title"><h2><?php echo $cpanel->sectionTitle() ?></h2></div>
 				
 				<div class="section-tabs">
 					<?= $cpanel->sectionTabs() ?>

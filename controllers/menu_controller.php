@@ -16,30 +16,34 @@
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelMenu->saveSection($this->data)) {
-					$this->Session->setFlash(__('Item saved.', true));
-				} else {
-					$this->Session->setFlash(__('Item not saved.', true));
+					$this->_redirectToIndex(__('Section saved.', true), success);
 				}
 				
-				unset($this->data['CpanelMenu']);
+				$this->Session->setFlash(__('Section not saved. Check for validation errors.', true), failure);
 			}
 			
 			$this->set('items', $this->CpanelMenu->find('list'));
 		}
 		
+		function moveup($id = null) {
+			$this->_redirectIfInvalid($id);
+			$this->_move($id, 'up');
+		}
+
+		function movedown($id = null) {
+			$this->_redirectIfInvalid($id);
+			$this->_move($id, 'down');
+		}
+		
 		function edit($id = null) {
-			if (null === $id) {
-				$this->Session->setFlash(__('Invalid id for section.', true), 'messages/notice');
-				$this->redirect($this->referer());
-			}
+			$this->_redirectIfInvalid($id);
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelMenu->saveSection($this->data)) {
-					$this->Session->setFlash(__('Changes saved.', true));
-					$this->redirect(ClassRegistry::init('Cpanel')->listMenuSectionsRoute);
+					$this->_redirectToIndex(__('Section saved.', true), success);
 				}
 				
-				$this->Session->setFlash(__('Changes not saved. Check validations errors.', true), 'messages/failure');
+				$this->Session->setFlash(__('Section not saved. Check for validations errors.', true), failure);
 			} else {
 				$this->data = $this->CpanelMenu->readSection($id);
 			}
@@ -48,19 +52,38 @@
 		}
 		
 		function delete($id = null) {
-			if (null === $id) {
-				$this->Session->setFlash(__('Invalid id for section.', true));
-				$this->redirect($this->referer());
-			}
+			$this->_redirectIfInvalid($id);
 			
 			if ($this->CpanelMenu->delete($id)) {
-				$this->Session->setFlash(__('Section deleted.', true));
-			} else {
-				$this->Session->setFlash(__('Section could not be deleted. Try again.', true));
+				$this->_redirectToIndex(__('Section deleted', true), success);
 			}
 			
-			$this->redirect(ClassRegistry::init('Cpanel')->listMenuSectionsRoute);
+			$this->_redirectToIndex(__('Section could not be deleted. Try again.', true), failure);
+		}
+		
+		
+		// Private
+		function _redirectToIndex($message = '', $layout = null) {
+			if ($message) {
+				$this->Session->setFlash($message, $layout);
+			}
+			$this->redirect(array('action' => 'index'));
+		}
+		function _redirectIfInvalid($id) {
+			if (null === $id || !is_numeric($id)) {
+				$this->Session->setFlash(__('Invalid id for section.', true), notice);
+				$this->redirect(array('action' => 'index'));
+			}
 			
+			return;
+		}
+		
+		function _move($id, $direction) {
+			if ($this->CpanelMenu->move($id, $direction)) {
+				$this->_redirectToIndex(__('Order changed', true), success);
+			}
+			
+			$this->_redirectToIndex(__('Order could not be changed. Try again', true), failure);
 		}
 	}
 	
