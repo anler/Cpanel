@@ -13,13 +13,16 @@
 			
 			if ($this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName) {
 				($this->params['controller'] == 'control_panel') || $controller = Inflector::humanize($this->params['controller']);
-				($this->params['action'] == 'index') ? $action = $action = __('List', true) : $action = Inflector::humanize($this->params['action']);
 
 				if (isset($controller)) {
-					$this->Html->addCrumb($controller, array('action' => 'index'));
-					$this->Html->addCrumb($action);
+					if ($this->params['action'] == 'index') {
+						$this->Html->addCrumb($controller);
+					} else {
+						$this->Html->addCrumb($controller, array('action' => 'index'));
+						$this->Html->addCrumb(Inflector::humanize($this->params['action']));
+					}
 				} else {
-					$this->Html->addCrumb($action);
+					$this->Html->addCrumb(Inflector::humanize($this->params['action']));
 				}
 			}
 			
