@@ -1,0 +1,1 @@
+<div class="failure"><?php echo $content_for_layout ?></div>

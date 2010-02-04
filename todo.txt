@@ -1,0 +1,3 @@
+- Add index to name field in cpanel_menu table
+- Improve section detection when creating crumbs (now is like ej: section:brans)
+- Increase text field length when adding a section to the menu
