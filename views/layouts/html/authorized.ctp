@@ -38,10 +38,9 @@
 					<?php $session->flash() ?>
 				</div>
 				
-				<div id="section-title"><h2><?php echo $cpanel->sectionTitle() ?></h2></div>
-				
-				<div class="section-tabs">
-					<?= $cpanel->sectionTabs() ?>
+				<div id="section-menu">
+					<h2><?php echo $cpanel->sectionTitle() ?></h2>
+					<?php echo $cpanel->sectionMenu() ?>
 				</div>
 
 				<div class="content">

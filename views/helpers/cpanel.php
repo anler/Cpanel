@@ -4,12 +4,16 @@
 	*/
 	class CpanelHelper extends Helper
 	{
-		var $helpers = array('Html', 'Form', 'Tree');
+		var $helpers = array('Html', 'Form', 'Javascript', 'Tree');
+		
+		function beforeRender() {
+			$this->_highlightSelected();
+		}
 		
 		function getCrumbs() {
 			$this->Html->addCrumb(__('Control Panel', true), ClassRegistry::init('Cpanel')->dashboardRoute);
 			
-			if ($this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName) {
+			if ($this->isCpanel()) {
 				($this->params['controller'] == 'control_panel') || $controller = Inflector::humanize($this->params['controller']);
 
 				if (isset($controller)) {
@@ -25,9 +29,18 @@
 			} else {
 				if (!empty($this->params['named']['section'])) {
 					$sections = ClassRegistry::init('CpanelMenu')->getpath($this->params['named']['section'], array('id', 'name', 'match_route'));
-					foreach ($sections as $section) {
-						$route = unserialize($section['CpanelMenu']['match_route']);
-						debug($route);exit;
+					
+					if (!empty($sections)) {
+						$last = array_pop($sections);
+						foreach ($sections as $section) {
+							$route = MenuItemRoute::unserializeRoute($section['CpanelMenu']['match_route'], true);
+							// To keep track of crumbs
+							// @todo Improve
+							$this->setSection($route, $section['CpanelMenu']['id']);
+							$this->Html->addCrumb($section['CpanelMenu']['name'], $route);
+						}
+						
+						$this->Html->addCrumb($last['CpanelMenu']['name']);
 					}
 				}
 			}
@@ -53,6 +66,7 @@
 			if (null === $text) {
 				$text = __('Dashboard', true);
 			}
+			
 			return $this->Html->link($text, ClassRegistry::getObject('Cpanel')->dashboardRoute, array('id' => 'dashboard'));
 		}
 		
@@ -60,7 +74,7 @@
 			if (null === $text) {
 				$text = __('My Account', true);
 			}
-			return $this->Html->link($text, '', array('id' => 'my-account'));
+			return $this->Html->link($text, /*ClassRegistry::getObject('Cpanel')->accountRoute*/'Account', array('id' => 'my-account'));
 		}
 		
 		function logout($text = null) {
@@ -74,8 +88,20 @@
 			
 		}
 		
-		function sectionTabs() {
+		function sectionMenu() {
+			if ($this->isCpanel()) {
+				return;
+			}
 			
+			$branch = ClassRegistry::init('CpanelMenu')->getpath($this->params['named']['section'], array('id', 'name', 'match_route'), 3);
+			
+			$firstLevelNodes = ClassRegistry::init('CpanelMenu')->find('all', array(
+				'conditions' => array('parent_id' => $branch[0]['CpanelMenu']['id']),
+				'fields' => array('id', 'parent_id', 'name', 'match_route'),
+				'order' => 'id'
+			));
+			
+			return $this->_buildMenu($firstLevelNodes);
 		}
 		
 		function subsectionTabs() {
@@ -99,7 +125,6 @@
 			// @todo Caching
 			$sections = ClassRegistry::init('Cpanel.CpanelMenu')->getSections();
 			
-			// $output .= $this->_organize($items, 2); - I found the tree helper does this and probably more efficient
 			$element = $this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName ? 'menu' : '../../plugins/' . ClassRegistry::init('Cpanel')->pluginName . '/views/elements/menu';
 			
 			$output .= $this->Tree->generate($sections, array('element' => $element));
@@ -107,37 +132,60 @@
 			return $output;
 		}
 		
+		function setSection(&$route, $value) {
+			// Enforces not route through the plugin
+			$route['plugin'] = null;
+			$route['section'] = $value;
+		}
+		
+		
+		// Private
+		
 		function _adminMenuTools() {
-			// debug(ClassRegistry::getObject('Cpanel')->listMenuSectionsRoute);exit;
 			$output = '';
 			if (Configure::read('debug')) {
 				$output .= '<li>';
 				$output .= $this->Html->link(__('Menu', true), ClassRegistry::getObject('Cpanel')->listMenuSectionsRoute);
-				// $output .= '<ul>';
-				// $output .= '<li>' . $this->Html->link(__('List Sections', true), ClassRegistry::getObject('Cpanel')->listMenuSectionsRoute) . '</li>';
-				// $output .= '<li>' . $this->Html->link(__('Add Section', true), ClassRegistry::getObject('Cpanel')->newMenuSectionRoute) . '</li>';
-				// $output .= '<li>' . $this->Html->link(__('Edit Sections', true), ClassRegistry::getObject('Cpanel')->editMenuSectionsRoute) . '</li>';
-				// $output .= '</ul>';
 				$output .= '</li>';
 			}
 			
 			return $output;
 		}
 		
-		// function _organize(&$items, $header) {
-		// 	$output = '';
-		// 	foreach ($items as &$item) {				
-		// 		$route = unserialize($item['CpanelMenuItem']['match_route'])->route;
-		// 		// Enforce items not to use cpanel plugin routes
-		// 		$route['plugin'] = '';
-		// 		if (!empty($item['children'])) {
-		// 			$output .= "<h$header>" . $this->Html->link($item['CpanelMenuItem']['name'], $route) . "</h$header>\n" . $this->_organize($item['children'], $header + 1);
-		// 		} else {
-		// 			$output .= "<h$header>" . $this->Html->link($item['CpanelMenuItem']['name'], $route) . "</h$header>\n";
-		// 		}
-		// 	}
-		// 	
-		// 	return $output;
-		// }
+		function _urlIsActive($url) {
+			return Router::url($url) == $this->here;
+		}
+		
+		function _highlightSelected() {
+			$block = <<<JS
+			window.addEvent('domready', function(){
+				var selected, parent;
+				selected = $$('a[href=$this->here]');
+				selected && selected.addClass('selected');
+				
+			});
+JS;
+			$this->Javascript->codeBlock($block, array('inline' => false));
+		}
+		
+		function _buildMenu($nodes, $options = array()) {
+			$nodes = (array) $nodes;
+			
+			$links = array();
+			
+			foreach ($nodes as $node) {
+				$nodeName = $node['CpanelMenu']['name'];
+				$nodeRoute = MenuItemRoute::unserializeRoute($node['CpanelMenu']['match_route'], true);
+				$this->setSection($nodeRoute, $node['CpanelMenu']['id']);
+				
+				$links[] = sprintf($this->Html->tags['li'], '', $this->Html->link($nodeName, $nodeRoute));
+			}
+			
+			return sprintf($this->Html->tags['ul'], $this->_parseAttributes($options), implode("\n", $links));
+		}
+		
+		function isCpanel() {
+			return $this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName ? true : false;
+		}
 	}
 	

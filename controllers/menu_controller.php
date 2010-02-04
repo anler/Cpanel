@@ -36,7 +36,7 @@
 		}
 		
 		function edit($id = null) {
-			$this->_redirectIfInvalid($id);
+			empty($this->data) && $this->_redirectIfInvalid($id);
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelMenu->saveSection($this->data)) {

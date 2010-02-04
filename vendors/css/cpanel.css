@@ -28,6 +28,10 @@ h1 {
 .clearboth 	{ clear: both;}
 
 /* Layout */
+#header #logout {
+	color: #1079FF;
+}
+
 #container {
 	min-width: 900px;
 	background:#E5E5E5 none repeat scroll 0 0;
@@ -124,6 +128,10 @@ h1 {
 	border-bottom: 1px solid #D5D5D5;
 }
 
+#menu li a.selected {
+	background-color:#ffbd99;
+}
+
 #menu {
 	border-bottom: 1px solid #666;
 }
@@ -172,9 +180,44 @@ h1 {
 
 	/* SECTIONS */
 	
-	#section-title {
+	#section-menu {
 		color: #F1732E;
 		margin: 0 20px;
+	}
+	
+	#section-menu h2 {
+		display: inline;
+	}
+	
+	#section-menu ul {
+		display: inline-block;
+		position: relative; top: 7px;
+		list-style: none;
+		height: 25px;
+		margin: 0 15px;
+	}
+	
+	#section-menu ul li {
+		float: left;
+		margin: 0 8px 0 0;
+	}
+	
+	#section-menu ul li a {
+		display: block;
+		height: 100%; min-width: 80px;
+		padding: 3px 8px;
+		text-decoration: none; text-align: center;
+		color: black;
+		border: 1px solid white;
+		border-bottom: none;
+		-moz-border-radius: 5px 5px 0 0;
+	}
+	
+	#section-menu ul li a:hover,
+	#section-menu ul li a.selected {
+		background-color: white;
+		border: 1px solid #666;
+		border-bottom: 1px solid white;
 	}
 	
 	a.new {
