@@ -23,9 +23,9 @@
 					<?php echo $cpanel->logout() ?>
 				</div>
 			</div>
-
+			
 			<div id="menu">
-				<?php echo $cpanel->sections() ?>
+				<?php echo $cpanel->menu() ?>
 			</div>
 			
 			<div id="board">

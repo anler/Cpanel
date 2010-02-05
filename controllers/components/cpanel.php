@@ -8,17 +8,21 @@
 		var $unauthorized = 'html/unauthorized';
 		var $authorized = 'html/authorized';
 		
-		function initialize() {
+		function initialize(&$controller) {
+			$this->controller =& $controller;
 			$viewPaths = Configure::read('viewPaths');
 			array_unshift($viewPaths, APP . 'plugins' . DS . Cpanel::getInstance() . DS . 'views' . DS);
 			Configure::write('viewPaths', $viewPaths);
+			
+			$this->_admin();
 		}
 		
-		function startup(&$controller) {
-			$this->controller =& $controller;
-			
+		
+		
+		// Private
+		function _admin() {
 			// Check if controller use AuthComponent
-			if (!isset($controller->Auth)) {
+			if (empty($this->controller->Auth)) {
 				trigger_error(__('Your application must use Auth component in order to Cpanel work!', true), E_USER_ERROR);
 			}
 			
@@ -26,10 +30,10 @@
 				
 				if ($this->_usingCpanel()) {
 					// Deny direct access to controllers in the plugin
-					$controller->redirect($controller->referer());
+					$this->controller->redirect($this->controller->referer());
 				} else {
 					// Allow access if not is an admin action
-					$controller->Auth->allow($controller->params['action']);
+					$this->controller->Auth->allow($this->controller->params['action']);
 				}
 				
 			} else {
@@ -37,17 +41,18 @@
 				ClassRegistry::addObject('Cpanel', Cpanel::getInstance());
 				
 				// Configure Auth Component
-				$controller->Auth->autoRedirect		 = false;
-				$controller->Auth->loginAction		 = Cpanel::getInstance()->loginRoute;
-				$controller->Auht->loginRedirect	 = Cpanel::getInstance()->dashboardRoute;
+				$this->controller->Auth->sessionKey	   = 'CpanelUser';
+				$this->controller->Auth->autoRedirect  = false;
+				$this->controller->Auth->loginAction   = Cpanel::getInstance()->loginRoute;
+				$this->controller->Auht->loginRedirect = Cpanel::getInstance()->dashboardRoute;
 				
 				// Enforce use of Cpanel function actions without 'Routing.admin' prefix
 				if ($this->_usingCpanel()) {
-					$controller->params['action'] = r(Cpanel::getInstance()->routingAdmin . '_', '', $controller->params['action']);
+					$this->controller->params['action'] = r(Cpanel::getInstance()->routingAdmin . '_', '', $this->controller->params['action']);
 					
 					foreach (array('login', 'setup') as $publicAdminAction) {
-						($controller->params['action'] == $publicAdminAction) && $controller->Auth->allow($publicAdminAction);
-						($controller->params['action'] == 'setup') && ($controller->Auth->authenticate = ClassRegistry::getObject('User'));
+						($this->controller->params['action'] == $publicAdminAction) && $this->controller->Auth->allow($publicAdminAction);
+						($this->controller->params['action'] == 'setup') && ($this->controller->Auth->authenticate = ClassRegistry::getObject('User'));
 					}
 				}
 				
@@ -59,21 +64,20 @@
 				
 				// If setup needed, redirect to setup page
 				if ($setupMode && !$this->_setupAction()) {
-					$controller->redirect(Cpanel::getInstance()->setupRoute);
+					$this->controller->redirect(Cpanel::getInstance()->setupRoute);
 				}
 				
-				$controller->layout = $this->_layout();
+				$this->controller->layout = $this->_layout();
 			}
 
 		}
 		
-		// Private
 		function _adminRequest() {
 			return isset($this->controller->params[Cpanel::getInstance()->routingAdmin]);
 		}
 		
 		function _layout($plugin = true) {
-			return $this->Session->read('Auth.User.id') ? $this->authorized : $this->unauthorized;
+			return $this->controller->Auth->user('id') ? $this->authorized : $this->unauthorized;
 		}
 		
 		function _usingCpanel() {
@@ -110,18 +114,18 @@
 			$this->authModel				= 'User';
 			
 			// Auth Routes
-			$this->loginRoute				= array('controller' => $this->authController, 'action' => 'login', $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->logoutRoute				= array('controller' => $this->authController, 'action' => 'logout', $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->setupRoute				= array('controller' => $this->authController, 'action' => 'setup', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->loginRoute				= array('controller' => $this->authController, 'action' => 'login', $this->routingAdmin => true, 'plugin' => $this);
+			$this->logoutRoute				= array('controller' => $this->authController, 'action' => 'logout', $this->routingAdmin => true, 'plugin' => $this);
+			$this->setupRoute				= array('controller' => $this->authController, 'action' => 'setup', $this->routingAdmin => true, 'plugin' => $this);
 			
 			// Modules Route
-			$this->dashboardRoute 			= array('controller' => $this->modulesController, 'action' => 'dashboard', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->dashboardRoute 			= array('controller' => $this->modulesController, 'action' => 'dashboard', $this->routingAdmin => true, 'plugin' => $this);
 			
 			// Menu Routes
-			$this->listMenuSectionsRoute	= array('controller' => $this->menuController, 'action' => 'index', $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->newMenuSectionRoute		= array('controller' => $this->menuController, 'action' => 'add', $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->editMenuSectionsRoute 	= array('controller' => $this->menuController, 'action' => 'edit', $this->routingAdmin => true, 'plugin' => $this->pluginName);
-			$this->deleteMenuSectionRoute	= array('controller' => $this->menuController, 'action' => 'delete', $this->routingAdmin => true, 'plugin' => $this->pluginName);
+			$this->listMenuSectionsRoute	= array('controller' => $this->menuController, 'action' => 'index', $this->routingAdmin => true, 'plugin' => $this);
+			$this->newMenuSectionRoute		= array('controller' => $this->menuController, 'action' => 'add', $this->routingAdmin => true, 'plugin' => $this);
+			$this->editMenuSectionsRoute 	= array('controller' => $this->menuController, 'action' => 'edit', $this->routingAdmin => true, 'plugin' => $this);
+			$this->deleteMenuSectionRoute	= array('controller' => $this->menuController, 'action' => 'delete', $this->routingAdmin => true, 'plugin' => $this);
 		}
 		
 		private function __clone() {}

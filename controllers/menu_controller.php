@@ -16,10 +16,10 @@
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelMenu->saveSection($this->data)) {
-					$this->_redirectToIndex(__('Section saved.', true), success);
+					$this->_redirectToIndex(__('Section saved.', true), $this->success);
 				}
 				
-				$this->Session->setFlash(__('Section not saved. Check for validation errors.', true), failure);
+				$this->Session->setFlash(__('Section not saved. Check for validation errors.', true), $this->failure);
 			}
 			
 			$this->set('items', $this->CpanelMenu->find('list'));
@@ -40,10 +40,10 @@
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelMenu->saveSection($this->data)) {
-					$this->_redirectToIndex(__('Section saved.', true), success);
+					$this->_redirectToIndex(__('Section saved.', true), $this->success);
 				}
 				
-				$this->Session->setFlash(__('Section not saved. Check for validations errors.', true), failure);
+				$this->Session->setFlash(__('Section not saved. Check for validations errors.', true), $this->failure);
 			} else {
 				$this->data = $this->CpanelMenu->readSection($id);
 			}
@@ -55,10 +55,10 @@
 			$this->_redirectIfInvalid($id);
 			
 			if ($this->CpanelMenu->delete($id)) {
-				$this->_redirectToIndex(__('Section deleted', true), success);
+				$this->_redirectToIndex(__('Section deleted', true), $this->success);
 			}
 			
-			$this->_redirectToIndex(__('Section could not be deleted. Try again.', true), failure);
+			$this->_redirectToIndex(__('Section could not be deleted. Try again.', true), $this->failure);
 		}
 		
 		
@@ -71,7 +71,7 @@
 		}
 		function _redirectIfInvalid($id) {
 			if (null === $id || !is_numeric($id)) {
-				$this->Session->setFlash(__('Invalid id for section.', true), notice);
+				$this->Session->setFlash(__('Invalid id for section.', true), $this->notice);
 				$this->redirect(array('action' => 'index'));
 			}
 			
@@ -80,10 +80,10 @@
 		
 		function _move($id, $direction) {
 			if ($this->CpanelMenu->move($id, $direction)) {
-				$this->_redirectToIndex(__('Order changed', true), success);
+				$this->_redirectToIndex(__('Order changed', true), $this->success);
 			}
 			
-			$this->_redirectToIndex(__('Order could not be changed. Try again', true), failure);
+			$this->_redirectToIndex(__('Order could not be changed. Try again', true), $this->failure);
 		}
 	}
 	

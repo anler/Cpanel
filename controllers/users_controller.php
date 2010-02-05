@@ -6,9 +6,9 @@
 	{	
 		var $uses = array('Cpanel.CpanelUser');
 		
-		// function beforeFilter() {
-		// 	$this->Auth->userModel = 'CpanelUser';
-		// }
+		function beforeFilter() {
+			$this->Auth->userModel = 'CpanelUser';
+		}
 		
 		function setup() {
 			if (!ClassRegistry::getObject('Cpanel')->setupMode) {
@@ -26,10 +26,9 @@
 		}
 		
 		function login() {
-			// debug($this->Session->read('Auth'));
-			// if ($this->Session->read('Auth.User.id')) {
-			// 				$this->redirect(ClassRegistry::getObject('Cpanel')->dashboardRoute);
-			// 			}
+			if ($this->Auth->user('id')) {
+				$this->redirect(ClassRegistry::init('Cpanel')->dashboardRoute);
+			}
 		}
 		
 		function logout() {

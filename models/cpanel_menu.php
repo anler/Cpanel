@@ -34,6 +34,7 @@
 			$success = false;
 
 			if ($success = $this->validates()) {
+				$this->data[$this->name]['url'] = Inflector::underscore($this->data[$this->name]['name']);
 				$this->data[$this->name]['match_route'] = MenuItemRoute::serializeRoute($this->data[$this->name]['match_route']);
 				
 				$succes = $this->save(null, false);
@@ -51,15 +52,25 @@
 		}
 		
 		function findSections() {
-			$sections = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'match_route')));
+			$sections = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'url', 'match_route')));
 
 			return $sections;
 		}
 		
-		function getSections() {
-			$items = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'match_route')));
-
+		function getSectionsTree() {
+			$items = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'url', 'match_route')));
+			
 			return $items;
+		}
+		
+		function getSectionBranch($section) {
+			$section = $this->find('first', array(
+				'conditions' => array('url' => $section),
+				'fields' => array('id')
+			));
+			
+			debug($section);exit;
+			// return $this->
 		}
 	}
 	
