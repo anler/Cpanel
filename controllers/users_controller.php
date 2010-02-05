@@ -4,7 +4,11 @@
 	*/
 	class UsersController extends CpanelAppController
 	{	
-		var $uses = array('Cpanel.User');
+		var $uses = array('Cpanel.CpanelUser');
+		
+		// function beforeFilter() {
+		// 	$this->Auth->userModel = 'CpanelUser';
+		// }
 		
 		function setup() {
 			if (!ClassRegistry::getObject('Cpanel')->setupMode) {
@@ -12,7 +16,7 @@
 			}
 			
 			if (!empty($this->data)) {
-				if ($this->User->setup($this->data)) {
+				if ($this->CpanelUser->setup($this->data)) {
 					$this->Session->setFlash(__('The Root account has been created, now you can login.', true));
 					$this->redirect(ClassRegistry::getObject('Cpanel')->loginRoute);
 				}
@@ -22,9 +26,10 @@
 		}
 		
 		function login() {
-			if ($this->Session->read('Auth.User.id')) {
-				$this->redirect(ClassRegistry::getObject('Cpanel')->dashboardRoute);
-			}
+			// debug($this->Session->read('Auth'));
+			// if ($this->Session->read('Auth.User.id')) {
+			// 				$this->redirect(ClassRegistry::getObject('Cpanel')->dashboardRoute);
+			// 			}
 		}
 		
 		function logout() {

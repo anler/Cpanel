@@ -2,13 +2,13 @@
 	/**
 	* 
 	*/
-	class User extends CpanelAppModel
+	class CpanelUser extends CpanelAppModel
 	{
 		var $validate = array(
 			'username' => array(
 				'maxLength' => array(
 					'rule' => array('between', 5, 10),
-					'message' => 'Username must be between 5 and 10 characters long'
+					'message' => 'User name must be between 5 and 10 characters long'
 				)
 			),
 			'password' => array(
@@ -30,7 +30,7 @@
 			
 			if ($result = $this->validates()) {
 				// Enforces root user to id of 1
-				$this->data['User']['id'] = 1;
+				$this->data[$this->name]['id'] = 1;
 				$this->data = $this->hashPasswords($this->data, true);
 				$result = $this->save(null, false);
 			}
@@ -39,12 +39,13 @@
 		}
 		
 		function passwordsCompare($data, $password, $repassword) {
-			return $data[$repassword] == $this->data['User'][$password];
+			return $data[$repassword] == $this->data[$this->name][$password];
 		}
 		
 		function hashPasswords($data, $enforce = false) {
- 			if (!empty($data['User']['password']) && $enforce) {
- 				$data['User']['password'] = Security::hash($data['User']['password'], null, true);
+			debug('Debug Message');exit;
+ 			if (!empty($data[$this->name]['password']) && $enforce) {
+ 				$data[$this->name]['password'] = Security::hash($data[$this->name]['password'], null, true);
  			}
 
 			return $data;
