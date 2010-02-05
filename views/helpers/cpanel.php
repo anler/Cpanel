@@ -6,8 +6,19 @@
 	{
 		var $helpers = array('Html', 'Form', 'Javascript', 'Tree');
 		
+		var $_branch;
+		var $_root;
+		
 		function beforeRender() {
-			$this->_highlightSelected();
+			debug($this->params);exit;
+			// $this->_highlightSelected();
+			if (isset($this->params['section'])) {
+				// $this->_setBranch($this->params['section']);
+			}
+		}
+		
+		function _setBranch($section) {
+			debug($section);exit;
 		}
 		
 		function getCrumbs() {
