@@ -14,6 +14,8 @@
 			array_unshift($viewPaths, APP . 'plugins' . DS . Cpanel::getInstance() . DS . 'views' . DS);
 			Configure::write('viewPaths', $viewPaths);
 			
+			isset($this->userModel) || $this->userModel = ClassRegistry::init('CpanelUser');
+			
 			$this->_admin();
 		}
 		
@@ -37,9 +39,6 @@
 				}
 				
 			} else {
-				// Save global configuration
-				ClassRegistry::addObject('Cpanel', Cpanel::getInstance());
-				
 				// Configure Auth Component
 				$this->controller->Auth->sessionKey	   = 'CpanelUser';
 				$this->controller->Auth->autoRedirect  = false;
@@ -52,14 +51,14 @@
 					
 					foreach (array('login', 'setup') as $publicAdminAction) {
 						($this->controller->params['action'] == $publicAdminAction) && $this->controller->Auth->allow($publicAdminAction);
-						($this->controller->params['action'] == 'setup') && ($this->controller->Auth->authenticate = ClassRegistry::getObject('User'));
+						($this->controller->params['action'] == 'setup') && ($this->controller->Auth->authenticate = $this->userModel);
 					}
 				}
 				
 				// See if create the root account is needed
 				// @todo Caching
 				// 		 Check if users table exists
-				$result = ClassRegistry::init('CpanelUser')->find('first', array('fields' => array('id')));
+				$result = $this->userModel->find('first', array('fields' => array('id')));
 				$setupMode = Cpanel::getInstance()->setupMode = empty($result);
 				
 				// If setup needed, redirect to setup page

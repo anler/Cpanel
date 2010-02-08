@@ -10,7 +10,7 @@
 		var $_root;
 		
 		function __construct() {
-			$this->Cpanel =& ClassRegistry::init('Cpanel');
+			$this->Cpanel =& Cpanel::getInstance();
 			$this->Menu   =& ClassRegistry::init('Cpanel.CpanelMenu');
 		}
 		
@@ -19,7 +19,7 @@
 		}
 		
 		function getCrumbs() {
-			$this->Html->addCrumb(__('Control Panel', true), ClassRegistry::init('Cpanel')->dashboardRoute);
+			$this->Html->addCrumb(__('Control Panel', true), $this->Cpanel->dashboardRoute);
 			
 			if (isset($this->params['section'])) {
 				$section = $this->Menu->findByUrl($this->params['section']);
@@ -59,21 +59,21 @@
 				$text = __('Dashboard', true);
 			}
 			
-			return $this->Html->link($text, ClassRegistry::getObject('Cpanel')->dashboardRoute, array('id' => 'dashboard'));
+			return $this->Html->link($text, $this->Cpanel->dashboardRoute, array('id' => 'dashboard'));
 		}
 		
 		function account($text = null) {
 			if (null === $text) {
 				$text = __('My Account', true);
 			}
-			return $this->Html->link($text, /*ClassRegistry::getObject('Cpanel')->accountRoute*/'Account', array('id' => 'my-account'));
+			return $this->Html->link($text, /*$this->Cpanel->accountRoute*/'Account', array('id' => 'my-account'));
 		}
 		
 		function logout($text = null) {
 			if (null === $text) {
 				$text = __('Logout', true);
 			}
-			return $this->Html->link($text, ClassRegistry::init('Cpanel')->logoutRoute, array('id' => 'logout'));
+			return $this->Html->link($text, $this->Cpanel->logoutRoute, array('id' => 'logout'));
 		}
 		
 		function levelUp() {
@@ -85,9 +85,9 @@
 				return;
 			}
 			
-			$branch = ClassRegistry::init('CpanelMenu')->getpath($this->params['named']['section'], array('id', 'name', 'match_route'), 3);
+			$branch = $this->Cpanel->getpath($this->params['named']['section'], array('id', 'name', 'match_route'), 3);
 			
-			$firstLevelNodes = ClassRegistry::init('CpanelMenu')->find('all', array(
+			$firstLevelNodes = $this->Menu->find('all', array(
 				'conditions' => array('parent_id' => $branch[0]['CpanelMenu']['id']),
 				'fields' => array('id', 'parent_id', 'name', 'match_route'),
 				'order' => 'id'
@@ -105,7 +105,7 @@
 		}
 		
 		function newSectionLink($message = '', $options = array()) {
-			return $this->Html->link($message, ClassRegistry::init('Cpanel')->newMenuSectionRoute, $options);
+			return $this->Html->link($message, $this->Cpanel->newMenuSectionRoute, $options);
 		}
 		
 		function menu() {
@@ -133,7 +133,7 @@
 			$output = '';
 			if (Configure::read('debug')) {
 				$output .= '<li>';
-				$output .= $this->Html->link(__('Menu', true), ClassRegistry::getObject('Cpanel')->listMenuSectionsRoute);
+				$output .= $this->Html->link(__('Menu', true), $this->Cpanel->listMenuSectionsRoute);
 				$output .= '</li>';
 			}
 			
@@ -173,7 +173,7 @@ JS;
 		}
 		
 		function isCpanel() {
-			return $this->params['plugin'] == ClassRegistry::init('Cpanel')->pluginName ? true : false;
+			return $this->params['plugin'] == $this->Cpanel->pluginName ? true : false;
 		}
 	}
 	
