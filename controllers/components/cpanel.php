@@ -49,9 +49,9 @@
 				if ($this->_usingCpanel()) {
 					$this->controller->params['action'] = r(Cpanel::getInstance()->routingAdmin . '_', '', $this->controller->params['action']);
 					
-					foreach (array('login', 'setup') as $publicAdminAction) {
+					foreach (array('login', 'setup', 'account') as $publicAdminAction) {
 						($this->controller->params['action'] == $publicAdminAction) && $this->controller->Auth->allow($publicAdminAction);
-						($this->controller->params['action'] == 'setup') && ($this->controller->Auth->authenticate = $this->userModel);
+						(in_array($this->controller->params['action'], array('setup', 'account'))) && ($this->controller->Auth->authenticate = $this->userModel);
 					}
 				}
 				

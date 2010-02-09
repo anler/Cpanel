@@ -29,7 +29,13 @@
 		
 		function account() {
 			if (!empty($this->data)) {
-				# code...
+				if ($this->CpanelUser->update($this->data)) {
+					$this->Session->setFlash(__('Changes Saved', true), $this->success);
+				} else {
+					$this->Session->setFlash(__('Changes not saved', true), $this->failure);
+				}
+				
+				unset($this->data['CpanelUser']);
 			}
 			
 			$username = $this->Session->read('CpanelUser.username');

@@ -18,6 +18,11 @@
 			'repassword' => array(
 				'rule' => array('passwordsCompare', 'password', 'repassword'),
 				'message' => 'Passwords does\'nt match'
+			),
+			'currentpassword' => array(
+				'rule' => array('passwordExists', 'username', 'currentpassword'),
+				'required' => false,
+				'message' => 'Invalid password for current user'
 			)
 		);
 		
@@ -31,7 +36,20 @@
 			if ($result = $this->validates()) {
 				// Enforces root user to id of 1
 				$this->data[$this->name]['id'] = 1;
-				$this->data = $this->hashPasswords($this->data, true);
+				$this->data[$this->name]['password'] = $this->hashPasswords($this->data[$this->name]['password'], true);
+				$result = $this->save(null, false);
+			}
+			
+			return $result;
+		}
+		
+		function update($data) {
+			$this->data = $data;
+			
+			if ($result = $this->validates()) {
+				$this->read(null, $data[$this->name]['id']);
+				$this->set('password', $this->hashPasswords($data[$this->name]['password'], true));
+				$this->data[$this->name]['password'] = $this->hashPasswords($this->data[$this->name]['password'], null, true);
 				$result = $this->save(null, false);
 			}
 			
@@ -42,13 +60,25 @@
 			return $data[$repassword] == $this->data[$this->name][$password];
 		}
 		
-		function hashPasswords($data, $enforce = false) {
-			debug('Debug Message');exit;
- 			if (!empty($data[$this->name]['password']) && $enforce) {
- 				$data[$this->name]['password'] = Security::hash($data[$this->name]['password'], null, true);
+		function passwordExists($data, $username, $password) {
+			$finded = false;
+			
+			if (!empty($this->data)) {
+				$username = $this->data[$this->name][$username];
+				$hashedPassword = $this->hashPasswords($data[$password], true);
+				$row = $this->find('first', array('conditions' => array('username' => $username, 'password' => $hashedPassword)));
+				$finded = !empty($row);
+			}
+			
+			return $finded;
+		}
+		
+		function hashPasswords($password, $enforce = false) {
+ 			if (!empty($password) && $enforce) {
+ 				$password = Security::hash($password, null, true);
  			}
 
-			return $data;
+			return $password;
 		}
 	}
 	
