@@ -41,7 +41,7 @@
 				$text = __('My Account', true);
 			}
 			
-			return $this->Html->link($text, /*$this->Cpanel->accountRoute*/'Account', array('id' => 'my-account', 'class' => 'top-options'));
+			return $this->Html->link($text, array('controller' => 'users', 'action' => 'account'), array('id' => 'my-account', 'class' => 'top-options'));
 		}
 		
 		/**

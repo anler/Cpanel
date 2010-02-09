@@ -2,14 +2,16 @@
 	/**
 	* 
 	*/
-	class UsersController extends CpanelAppController
-	{	
+	class UsersController extends CpanelAppController {
 		var $uses = array('Cpanel.CpanelUser');
 		
 		function beforeFilter() {
 			$this->Auth->userModel = 'CpanelUser';
 		}
 		
+		/**
+		 * 
+		 */
 		function setup() {
 			if (!ClassRegistry::getObject('Cpanel')->setupMode) {
 				$this->redirect(array('action' => 'login'));
@@ -25,13 +27,30 @@
 			}
 		}
 		
+		function account() {
+			if (!empty($this->data)) {
+				# code...
+			}
+			
+			$username = $this->Session->read('CpanelUser.username');
+			
+			$this->set(compact('username'));
+		}
+		
+		/**
+		 * 
+		 */
 		function login() {
 			if ($this->Auth->user('id')) {
 				$this->redirect(array('controller' => 'control_panel', 'action' => 'dashboard'));
 			}
 		}
 		
+		/**
+		 * 
+		 */
 		function logout() {
 			$this->redirect($this->Auth->logout());
 		}
 	}
+?>
