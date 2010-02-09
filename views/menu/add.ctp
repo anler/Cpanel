@@ -1,4 +1,4 @@
-<?php echo $form->create('CpanelMenu', array('url' => ClassRegistry::getObject('Cpanel')->newMenuSectionRoute)) ?>
+<?php echo $form->create('CpanelMenu', array('url' => array('controller' => 'menu'))) ?>
 	<fieldset>
 		<legend>Help</legend>
 		

@@ -1,4 +1,4 @@
-<?php echo $form->create('CpanelUser', array('url' => ClassRegistry::init('Cpanel')->loginRoute)) ?>
+<?php echo $form->create('CpanelUser', array('url' => array('controller' => 'users', 'action' => 'login'))) ?>
 	<fieldset id="" >
 		<legend>Login</legend>
 		<div id="validation-errors">

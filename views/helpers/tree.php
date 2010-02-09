@@ -142,6 +142,7 @@ class TreeHelper extends AppHelper {
 			$model = '_NULL_';
 		}
 		$stack = array();
+		
 		if ($depth == 0) {
 			if ($class) {
 				$this->addTypeAttribute('class', $class, null, 'previous');

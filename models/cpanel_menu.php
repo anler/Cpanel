@@ -34,7 +34,7 @@
 			$success = false;
 
 			if ($success = $this->validates()) {
-				$this->data[$this->name]['url'] = Inflector::underscore($this->data[$this->name]['name']);
+				$this->data[$this->name]['url'] = Inflector::slug(low($this->data[$this->name]['name']), '-');
 				$this->data[$this->name]['match_route'] = MenuItemRoute::serializeRoute($this->data[$this->name]['match_route']);
 				
 				$succes = $this->save(null, false);
@@ -51,26 +51,85 @@
 			return $section;
 		}
 		
-		function findSections() {
-			$sections = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'url', 'match_route')));
-
-			return $sections;
-		}
-		
-		function getSectionsTree() {
-			$items = $this->find('threaded', array('fields' => array('id', 'parent_id', 'name', 'url', 'match_route')));
+		function findSectionPath($id = null) {
+			if ($id !== null) {
+				$parents = $this->getpath($id);
+				
+				$conditions = array(
+					'or' => array(
+						array('parent_id' => null),
+						array('parent_id' => $id)
+					)
+				);
+				
+				foreach ($parents as $parent) {
+					$conditions['or'][] = array('parent_id' => $parent[$this->name]['parent_id']);
+				}
+			} else {
+				$conditions = array('parent_id' => null);
+			}
 			
-			return $items;
+			return $this->find('threaded', array('conditions' => $conditions));
 		}
 		
-		function getSectionBranch($section) {
-			$section = $this->find('first', array(
-				'conditions' => array('url' => $section),
-				'fields' => array('id')
+		function findTree() {
+			return $this->find('threaded');
+		}
+		
+		/**
+		 * 
+		 */
+		function findSectionFromUrl($url, $options = array()) {
+			$options = Set::merge(
+				array('conditions' => array('url' => $url)),
+				$options
+			);
+			
+			return $this->find('first', $options);
+		}
+		
+		/**
+		 * 
+		 */
+		function findSectionPathFromUrl($url, $options = array()) {
+			$section = $this->findSectionFromUrl($url, $options);
+			
+			if (!empty($section)) {
+				$path = $this->getpath($section[$this->name]['id']);
+				$section['path'] = $path;
+			}
+			
+			return $section;
+		}
+		
+		function findSectionChildren($url) {
+			$node = $this->_findSection($url);
+			
+			return $this->find('all', array('conditions' => array('parent_id' => $node[$this->name]['id'])));
+		}
+		
+		
+		// Private
+		/**
+		 * 
+		 */
+		function _hasChildren($node) {
+			$children = $this->find('first', array(
+				'condition' => array('parent_id' => $node[$this->name]['id'])
 			));
 			
-			debug($section);exit;
-			// return $this->
+			$empty = empty($children) ? true : false;
+			
+			return !$empty;
+		}
+		
+		/**
+		 * 
+		 */
+		function _findSection($url) {
+			isset($this->__section) || $this->__section = $this->findByUrl($url);
+			
+			return $this->__section;
 		}
 	}
 	
@@ -78,15 +137,23 @@
 	/**
 	* 
 	*/
-	class MenuItemRoute
-	{
+	class MenuItemRoute {
+		/**
+		 * 
+		 */
 		static $_instance;
 		
+		/**
+		 * 
+		 */
 		public $route = array();
 		
 		private function __construct() {}
 		private function __clone() {}
 		
+		/**
+		 * 
+		 */
 		public static function getInstance() {
 			if (!(self::$_instance instanceof self)) {
 				self::$_instance = new self();
@@ -95,6 +162,9 @@
 			return self::$_instance;
 		}
 		
+		/**
+		 * 
+		 */
 		public static function cleanParam($params) {
 			if (is_array($params)) {
 				$param = trim($params[0], ':\t ');
@@ -108,6 +178,9 @@
 			return $result;
 		}
 		
+		/**
+		 * 
+		 */
 		public static function serializeRoute($route) {
 			$tokens = String::tokenize($route);
 			
@@ -138,6 +211,9 @@
 			return serialize(self::getInstance());
 		}
 		
+		/**
+		 * 
+		 */
 		public static function unserializeRoute($route, $asArray = false) {
 			$Route = unserialize($route);
 			

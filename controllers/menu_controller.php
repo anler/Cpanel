@@ -5,7 +5,7 @@
 	class MenuController extends CpanelAppController {
 		
 		function index() {
-			$this->set('sections', $this->CpanelMenu->findSections());
+			$this->set('sections', $this->CpanelMenu->find('threaded'));
 		}
 		
 		function add() {

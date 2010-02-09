@@ -180,16 +180,16 @@ h1 {
 
 	/* SECTIONS */
 	
-	#section-menu {
+	#section-tabs {
 		color: #F1732E;
 		margin: 0 20px;
 	}
 	
-	#section-menu h2 {
+	#section-tabs h2 {
 		display: inline;
 	}
 	
-	#section-menu ul {
+	#section-tabs ul {
 		display: inline-block;
 		position: relative; top: 7px;
 		list-style: none;
@@ -197,12 +197,12 @@ h1 {
 		margin: 0 15px;
 	}
 	
-	#section-menu ul li {
+	#section-tabs ul li {
 		float: left;
 		margin: 0 8px 0 0;
 	}
 	
-	#section-menu ul li a {
+	#section-tabs ul li a {
 		display: block;
 		height: 100%; min-width: 80px;
 		padding: 3px 8px;
@@ -213,8 +213,9 @@ h1 {
 		-moz-border-radius: 5px 5px 0 0;
 	}
 	
-	#section-menu ul li a:hover,
-	#section-menu ul li a.selected {
+	#section-tabs ul li a:hover,
+	#section-tabs ul li.selected a,
+	#section-tabs ul li.active a {
 		background-color: white;
 		border: 1px solid #666;
 		border-bottom: 1px solid white;
@@ -390,41 +391,66 @@ h1 {
 	background-color: #fff;
 }
 
-.content-subtabs {
-	width: 100%;
+/* Section Actions */
+#section-sub-tabs {
+	height: 24px;
 }
 
-.content-subtabs ul{
-	margin:0;
-}
-
-.content-subtabs li {
+#section-sub-tabs ul {
 	list-style: none;
-	margin:0;
 }
 
-.content-subtabs li a{
-	display:block;
-	float:left;
+#section-sub-tabs ul li {
+	float: left;
+	margin: 0 5px;
+}
+
+#section-sub-tabs ul li a{
+	display:block; height: 15px;
 	padding: 4px 8px;
 	color: #4c4c4c;
 	text-decoration: none;
-	-moz-border-radius-topleft:5px;
-	-moz-border-radius-topright:5px;
 }
 
-.content-subtabs li a.active,
-.content-subtabs li.active a{
+#section-sub-tabs ul li.selected a,
+#section-sub-tabs ul li.active a {
 	color: #000;
 	border: 1px solid #F1732E;
 	border-bottom: 0;
+	-moz-border-radius: 5px 5px 0 0;
 }
 
-.content-subtabs li a:hover{
+#section-sub-tabs ul li a:hover {
 	text-decoration: underline;
 }
 
 /*  Actions  */
+#section-actions {
+	border: 1px solid #F1732E;
+	-moz-border-radius: 0 0 5px 5px;
+}
+
+#section-actions ul {
+	list-style: none;
+	height: 25px;
+}
+
+#section-actions ul li {
+	float: left;
+	margin: 0 5px;
+}
+
+#section-actions ul li a {
+	display:block; height: 15px;
+	padding: 4px 8px;
+	color: #4c4c4c;
+	text-decoration: none;
+}
+
+#section-actions ul li a:hover {
+	text-decoration: underline;
+}
+
 .content-actions {
 	margin-bottom:20px;
 	border: 1px solid #F1732E;
@@ -964,7 +990,7 @@ div.code-coverage-results span.result-good {
 	color: #4c4c4c;
 }
 /* SQL Log */
-table.cake-sql-log {
+/*table.cake-sql-log {
 	position: absolute;
 	top: 0; right: 0;
 	width: 500px;
@@ -973,4 +999,4 @@ table.cake-sql-log {
 
 table.cake-sql-log thead {
 	height: 10px;
-}
+}*/

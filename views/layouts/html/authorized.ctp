@@ -25,31 +25,30 @@
 			</div>
 			
 			<div id="menu">
-				<?php echo $cpanel->menu() ?>
+				<?php echo $cpanel->navigationList() ?>
 			</div>
 			
 			<div id="board">
 				<div class="navigation-bar">
-					<div class="breadcrumbs"><?php echo $cpanel->getCrumbs(' > ') ?></div>
-					<?= $cpanel->levelUp() ?> <!-- ? class="level-up" -->
+					<div class="breadcrumbs"><?php echo $cpanel->crumbs(' > ') ?><?php //echo $cpanel->levelUp() ?></div>
 				</div>
 				
 				<div class="flashes">
 					<?php $session->flash() ?>
 				</div>
 				
-				<div id="section-menu">
-					<h2><?php echo $cpanel->sectionTitle() ?></h2>
-					<?php echo $cpanel->sectionMenu() ?>
+				<div id="section-tabs">
+					<h2><?php echo $cpanel->sectionTitle() ?></h2><?php echo $cpanel->sectionTabs() ?>
 				</div>
-
+				
 				<div class="content">
-					<div class="subsection-tabs">
-						<?= $cpanel->subsectionTabs() ?>
-						<!-- <?= $this->element('section_actions') ?> -->
+					<div id="section-sub-tabs">
+						<?php echo $cpanel->sectionSubTabs() ?>
 					</div>
-
-					<?= $content_for_layout ?>
+					<div id="section-actions">
+						<?php echo $cpanel->sectionActions() ?>
+					</div>
+					<?php echo $content_for_layout ?>
 				</div>
 
 			</div>

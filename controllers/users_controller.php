@@ -12,13 +12,13 @@
 		
 		function setup() {
 			if (!ClassRegistry::getObject('Cpanel')->setupMode) {
-				$this->redirect(ClassRegistry::getObject('Cpanel')->loginRoute);
+				$this->redirect(array('action' => 'login'));
 			}
 			
 			if (!empty($this->data)) {
 				if ($this->CpanelUser->setup($this->data)) {
 					$this->Session->setFlash(__('The Root account has been created, now you can login.', true));
-					$this->redirect(ClassRegistry::getObject('Cpanel')->loginRoute);
+					$this->redirect(array('action' => 'login'));
 				}
 					$this->Session->setFlash(__('The Root account can\'t be created. Check if you fill the form correctly.', true));
 					$this->data['User']['password'] = $this->data['User']['repassword'] = '';
@@ -27,7 +27,7 @@
 		
 		function login() {
 			if ($this->Auth->user('id')) {
-				$this->redirect(ClassRegistry::init('Cpanel')->dashboardRoute);
+				$this->redirect(array('controller' => 'control_panel', 'action' => 'dashboard'));
 			}
 		}
 		
