@@ -138,18 +138,157 @@
 				return;
 			}
 			
-			$output = '';
-			
-			$section = $this->Menu->findSectionFromUrl($this->params['section']);
-			$path = $this->Menu->getpath($section['CpanelMenu']['id'], 'id');
-			$firstLevel = $this->Menu->findAllByParentId($path[0]['CpanelMenu']['id']);
-			
-			$output .= $this->Tree->generate($firstLevel, array('model' => 'CpanelMenu', 'element' => 'menu/cpanel_menu', 'autoPath' => array($section['CpanelMenu']['lft'], $section['CpanelMenu']['rght'])));
+			$output = $this->_buildTabs(array('depth' => 0, 'autoPath' => true), array('element' => 'menu/cpanel_menu', 'model' => 'CpanelMenu'));
 			
 			return $output;
 		}
 		
+		/**
+		 * 
+		 */
+		function sectionSubTabs() {
+			if ($this->isCpanel()) {
+				return;
+			}
+			
+			$output = $this->_buildTabs(array('depth' => 1, 'autoPath' => true), array('element' => 'menu/cpanel_menu', 'model' => 'CpanelMenu'));
+			
+			return $output;
+		}
 		
+		/**
+		 * 
+		 */
+		function sectionActions($options = array()) {
+			if ($this->isCpanel()) {
+				return;
+			}
+			
+			// Little hack, improve in future
+			$section = $this->Menu->findSectionPathFromUrl($this->_getSection());
+			$triggerDepth = 1;
+			if (empty($section['path'][$triggerDepth])) {
+				return;
+			}
+			
+			$output = '';
+			
+			$actions = $this->_findControllerActions($this->Menu->findSectionFromUrl($this->params['section']));
+			$links = array();
+			
+			foreach ($actions as $action) {
+				$link = $this->Html->link($action['name'], $action['route']);
+				$links[] = sprintf($this->Html->tags['li'], '', $link);
+			}
+			
+			$output .= sprintf($this->Html->tags['ul'], '', implode("\n", $links));
+			$output = sprintf($this->Html->tags['block'], $this->_parseAttributes($options), $output);
+			
+			return $output;
+		}
+		
+		// Content
+		/**
+		 * 
+		 */
+		function sectionTitle() {
+			$title = isset($this->params['section']) ? 
+							Inflector::humanize($this->params['section']) 
+							:
+							Inflector::humanize($this->params['controller']);
+							
+			return $title;
+		}
+		
+		// Configuration
+		function setSection(&$route, $value) {
+			// Enforces not route through the plugin
+			$route['plugin'] = null;
+			$route['section'] = $value;
+		}
+		
+		
+		// Private
+		/**
+		 * 
+		 */
+		function _adminMenuTools() {
+			$output = '';
+			if (Configure::read('debug')) {
+				$output .= '<li>';
+				$output .= $this->Html->link(__('Menu', true), $this->Cpanel->listMenuSectionsRoute);
+				$output .= '</li>';
+			}
+			
+			return $output;
+		}
+		
+		/**
+		 * 
+		 */
+		function _getSection() {
+			$section = isset($this->params['section']) ? $this->params['section'] : null;
+			
+			return $section;
+		}
+		
+		/**
+		 * 
+		 */
+		function _buildMenu($nodes, $options = array()) {
+			$nodes = (array) $nodes;
+			
+			$links = array();
+			
+			foreach ($nodes as $node) {
+				$nodeName = $node['CpanelMenu']['name'];
+				$nodeRoute = MenuItemRoute::unserializeRoute($node['CpanelMenu']['match_route'], true);
+				$this->setSection($nodeRoute, $node['CpanelMenu']['id']);
+				
+				$links[] = sprintf($this->Html->tags['li'], '', $this->Html->link($nodeName, $nodeRoute));
+			}
+			
+			return sprintf($this->Html->tags['ul'], $this->_parseAttributes($options), implode("\n", $links));
+		}
+		
+		/**
+		 * 
+		 */
+		function isCpanel() {
+			return $this->params['plugin'] == $this->Cpanel->pluginName ? true : false;
+		}
+		
+		/**
+		 * 
+		 */
+		function _buildTabs($options = array(), $treeOptions = array()) {
+			$result = '';
+			
+			$options = Set::merge(
+				// Specify the depth of the parent which
+				// from you want his children
+				array('depth' => 0, 'autoPath' => false),
+				$options
+			);
+			
+			$section = $this->Menu->findSectionPathFromUrl($this->_getSection());
+			$tabsDepth = $options['depth'];
+			
+			if ($options['autoPath']) {
+				$treeOptions['autoPath'] = array($section['CpanelMenu']['lft'], $section['CpanelMenu']['rght']);
+			}
+			
+			if (!empty($section) && isset($section['path'][$tabsDepth])) {
+				$tabs = $this->Menu->findAllByParentId($section['path'][$tabsDepth]['CpanelMenu']['id']);
+				$result = $this->Tree->generate($tabs, $treeOptions);
+			}
+			
+			return $result;
+		}
+		
+		/**
+		 * 
+		 */
 		function _findControllerActions($section) {
 			$route = MenuItemRoute::unserializeRoute($section['CpanelMenu']['match_route'], 'asArray');
 			
@@ -188,103 +327,6 @@
 			}
 			
 			return $actions;
-		}
-		
-		function sectionSubTabs() {
-			if ($this->isCpanel()) {
-				return;
-			}
-			
-			$output = '';
-			
-			$section = $this->Menu->findSectionFromUrl($this->params['section']);
-			$path = $this->Menu->getpath($section['CpanelMenu']['id'], 'id');
-			$firstLevel = $this->Menu->findAllByParentId($path[1]['CpanelMenu']['id']);
-			
-			$output .= $this->Tree->generate($firstLevel, array('model' => 'CpanelMenu', 'element' => 'menu/cpanel_menu', 'autoPath' => array($section['CpanelMenu']['lft'], $section['CpanelMenu']['rght'])));
-			
-			return $output;
-		}
-		
-		function sectionActions() {
-			if ($this->isCpanel()) {
-				return;
-			}
-			
-			$output = '';
-			
-			$actions = $this->_findControllerActions($this->Menu->findSectionFromUrl($this->params['section']));
-			$links = array();
-			
-			foreach ($actions as $action) {
-				$link = $this->Html->link($action['name'], $action['route']);
-				$links[] = sprintf($this->Html->tags['li'], '', $link);
-			}
-			
-			$output .= sprintf($this->Html->tags['ul'], '', implode("\n", $links));
-			
-			return $output;
-		}
-		
-		function sectionTitle($title = null) {
-			return Inflector::humanize($this->params['controller']);
-		}
-		
-		function newSectionLink($message = '', $options = array()) {
-			return $this->Html->link($message, $this->Cpanel->newMenuSectionRoute, $options);
-		}
-		
-		function setSection(&$route, $value) {
-			// Enforces not route through the plugin
-			$route['plugin'] = null;
-			$route['section'] = $value;
-		}
-		
-		
-		// Private
-		/**
-		 * 
-		 */
-		function _adminMenuTools() {
-			$output = '';
-			if (Configure::read('debug')) {
-				$output .= '<li>';
-				$output .= $this->Html->link(__('Menu', true), $this->Cpanel->listMenuSectionsRoute);
-				$output .= '</li>';
-			}
-			
-			return $output;
-		}
-		
-		/**
-		 * 
-		 */
-		function _getSection() {
-			$section = isset($this->params['section']) ? $this->params['section'] : null;
-			
-			return $section;
-		}
-		/**
-		 * 
-		 */
-		function _buildMenu($nodes, $options = array()) {
-			$nodes = (array) $nodes;
-			
-			$links = array();
-			
-			foreach ($nodes as $node) {
-				$nodeName = $node['CpanelMenu']['name'];
-				$nodeRoute = MenuItemRoute::unserializeRoute($node['CpanelMenu']['match_route'], true);
-				$this->setSection($nodeRoute, $node['CpanelMenu']['id']);
-				
-				$links[] = sprintf($this->Html->tags['li'], '', $this->Html->link($nodeName, $nodeRoute));
-			}
-			
-			return sprintf($this->Html->tags['ul'], $this->_parseAttributes($options), implode("\n", $links));
-		}
-		
-		function isCpanel() {
-			return $this->params['plugin'] == $this->Cpanel->pluginName ? true : false;
 		}
 	}
 	

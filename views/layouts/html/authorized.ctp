@@ -45,9 +45,9 @@
 					<div id="section-sub-tabs">
 						<?php echo $cpanel->sectionSubTabs() ?>
 					</div>
-					<div id="section-actions">
-						<?php echo $cpanel->sectionActions() ?>
-					</div>
+					
+					<?php echo $cpanel->sectionActions(array('id' => 'section-actions')) ?>
+					
 					<?php echo $content_for_layout ?>
 				</div>
 
