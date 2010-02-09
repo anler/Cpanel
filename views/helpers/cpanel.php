@@ -146,12 +146,16 @@
 		/**
 		 * 
 		 */
-		function sectionSubTabs() {
+		function sectionSubTabs($options = array()) {
 			if ($this->isCpanel()) {
 				return;
 			}
 			
 			$output = $this->_buildTabs(array('depth' => 1, 'autoPath' => true), array('element' => 'menu/cpanel_menu', 'model' => 'CpanelMenu'));
+			
+			if (!empty($output)) {
+				$output = sprintf($this->Html->tag['block'], $this->_parseAttributes($options), "\n$output\n");
+			}
 			
 			return $output;
 		}
@@ -207,6 +211,12 @@
 			$route['section'] = $value;
 		}
 		
+		/**
+		 * 
+		 */
+		function newSectionLink($message = '', $options = array()) {
+			return $this->Html->link($message, array('action' => 'add'), $options);
+		}
 		
 		// Private
 		/**

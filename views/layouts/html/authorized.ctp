@@ -42,9 +42,7 @@
 				</div>
 				
 				<div class="content">
-					<div id="section-sub-tabs">
-						<?php echo $cpanel->sectionSubTabs() ?>
-					</div>
+					<?php echo $cpanel->sectionSubTabs(array('id' => 'section-sub-tabs')) ?>
 					
 					<?php echo $cpanel->sectionActions(array('id' => 'section-actions')) ?>
 					

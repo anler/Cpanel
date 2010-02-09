@@ -14,21 +14,9 @@
 		
 		var $actsAs = array('Tree');
 		
-		function move($id, $direction) {
-			$success = false;
-			switch ($direction) {
-				case 'up':
-					$success = $this->moveup($id, true);
-					break;
-				
-				case 'down':
-					$success = $this->movedown($id);
-					break;
-			}
-			
-			return $success;
-		}
-		
+		/**
+		 * 
+		 */
 		function saveSection($data) {
 			$this->set($data);
 			$success = false;

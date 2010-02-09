@@ -5,7 +5,7 @@
 	class MenuController extends CpanelAppController {
 		
 		function index() {
-			$this->set('sections', $this->CpanelMenu->find('threaded'));
+			$this->set('sections', $this->CpanelMenu->find('threaded', array('order' => 'lft asc')));
 		}
 		
 		function add() {
@@ -69,6 +69,7 @@
 			}
 			$this->redirect(array('action' => 'index'));
 		}
+		
 		function _redirectIfInvalid($id) {
 			if (null === $id || !is_numeric($id)) {
 				$this->Session->setFlash(__('Invalid id for section.', true), $this->notice);
@@ -78,8 +79,23 @@
 			return;
 		}
 		
+		/**
+		 * 
+		 */
 		function _move($id, $direction) {
-			if ($this->CpanelMenu->move($id, $direction)) {
+			$success = false;
+			
+			switch ($direction) {
+				case 'up':
+					$success = $this->CpanelMenu->moveup($id);
+					break;
+				
+				case 'down':
+					$success = $this->CpanelMenu->movedown($id);
+					break;
+			}
+			
+			if ($success) {
 				$this->_redirectToIndex(__('Order changed', true), $this->success);
 			}
 			
