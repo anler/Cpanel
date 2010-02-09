@@ -1,7 +1,8 @@
 /**
- * CPanel
+ * CPanel v1.0
  */
 	$adminPrefix = Configure::read('Routing.admin');
 	Router::connect("/$adminPrefix", array('controller' => 'users', 'action' => 'login', "$adminPrefix" => true, 'plugin' => 'cpanel'));
-	Router::connect(":plugin/$adminPrefix/:controller/:action/:id", array("$adminPrefix" => true), array('pass' => array('id')));
-	Router::connect(":plugin/$adminPrefix/:controller/:action/*", array("$adminPrefix" => true));
+	
+	Router::connect("cpanel/$adminPrefix/:controller/:action/*", array("$adminPrefix" => true, 'plugin' => 'cpanel'));
+	Router::connect(":section/$adminPrefix/:controller/:action/*", array("$adminPrefix" => true), array('section' => '[a-z\-_]*'));
