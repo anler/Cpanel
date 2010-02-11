@@ -5,6 +5,10 @@
 	class UsersController extends CpanelAppController {
 		var $uses = array('Cpanel.CpanelUser');
 		
+		var $components = array('RequestHandler');
+		
+		var $helpers = array('Time');
+		
 		function beforeFilter() {
 			$this->Auth->userModel = 'CpanelUser';
 		}
@@ -13,10 +17,6 @@
 		 * 
 		 */
 		function setup() {
-			if (!ClassRegistry::getObject('Cpanel')->setupMode) {
-				$this->redirect(array('action' => 'login'));
-			}
-			
 			if (!empty($this->data)) {
 				if ($this->CpanelUser->setup($this->data)) {
 					$this->Session->setFlash(__('The Root account has been created, now you can login.', true));
@@ -38,9 +38,11 @@
 				unset($this->data['CpanelUser']);
 			}
 			
-			$username = $this->Session->read('CpanelUser.username');
+			$username 		= $this->Session->read('CpanelUser.username');
+			$lastLogin 		= $this->Session->read('CpanelUser.last_login');
+			$lastLoginIP	= $this->Session->read('CpanelUser.last_login_ip');
 			
-			$this->set(compact('username'));
+			$this->set(compact('username', 'lastLogin', 'lastLoginIP'));
 		}
 		
 		/**
@@ -48,6 +50,15 @@
 		 */
 		function login() {
 			if ($this->Auth->user('id')) {
+				if ($this->Session->read('CPanelUser.last_login') == '0000-00-00 00:00:00') {
+					$this->Session->write('CPanelUser.last_login', __('This is the first time you log in', true));
+				}
+
+				$this->CpanelUser->read(array('last_login', 'last_login_ip'), $this->Session->read('CpanelUser.id'));
+				$this->CpanelUser->set('last_login', date('Y-m-d H-i-s'));
+				$this->CpanelUser->set('last_login_ip', $this->RequestHandler->getClientIP());
+				$this->CpanelUser->save(null, false);
+				
 				$this->redirect(array('controller' => 'control_panel', 'action' => 'dashboard'));
 			}
 		}

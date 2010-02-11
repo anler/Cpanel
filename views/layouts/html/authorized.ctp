@@ -5,7 +5,7 @@
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 		<title><?php echo $title_for_layout ?> - CPanel v1.0</title>
 		
-		<?php echo $html->css('/cpanel/css/cpanel.css') ?>
+		<?php echo $cpanel->css() ?>
 		
 		<?php echo $javascript->link('/cpanel/js/mootools-1.2.4-core') ?>
 		<?php echo $javascript->link('/cpanel/js/mootools-1.2.4.2-more') ?>
@@ -16,42 +16,37 @@
 	<body id="cpanel">
 		<div id="container">
 			<div id="header">
-				<?php echo $cpanel->appCredentials() ?>
-				<div>
-					<?php echo $cpanel->dashboard() ?>
-					<?php echo $cpanel->account() ?>
-					<?php echo $cpanel->logout() ?>
-				</div>
+				<?php echo $cpanel->appCredentials(array('id' => 'app-credentials')) ?>
+				<?php echo $cpanel->userActions(array('id' => 'user-actions', 'class' => 'h tags')) ?>
 			</div>
 			
-			<div id="menu">
-				<?php echo $cpanel->navigationList() ?>
-			</div>
+			<?php echo $cpanel->navigationList(array('id' => 'navigation-list', 'class' => 'tags')) ?>
 			
 			<div id="board">
-				<div class="navigation-bar">
-					<div class="breadcrumbs"><?php echo $cpanel->crumbs(' > ') ?><?php //echo $cpanel->levelUp() ?></div>
-				</div>
+				<?php echo $cpanel->crumbs(' > ', array('id' => 'breadcrumbs')) ?>
 				
-				<div class="flashes">
+				<div id="flashes">
 					<?php $session->flash() ?>
 				</div>
 				
 				<div id="section-tabs">
-					<h2><?php echo $cpanel->sectionTitle() ?></h2><?php echo $cpanel->sectionTabs() ?>
+					<?php echo $cpanel->sectionTitle(array('class' => 'title h')) ?>
+					<?php echo $cpanel->sectionTabs(array('class' => 'h tags')) ?>
 				</div>
 				
 				<div class="content">
-					<?php echo $cpanel->sectionSubTabs(array('id' => 'section-sub-tabs')) ?>
+					<?php echo $cpanel->sectionSubTabs(array('id' => 'section-sub-tabs', 'class' => 'h tags')) ?>
 					
-					<?php echo $cpanel->sectionActions(array('id' => 'section-actions')) ?>
+					<?php echo $cpanel->sectionActions(array('id' => 'section-actions', 'class' => 'h tags')) ?>
 					
 					<?php echo $content_for_layout ?>
 				</div>
 
 			</div>
 
-			<div id="" class="clearboth"></div>
+			<div id="footer" class="clearboth">
+				DESIGN AND DEVELOPMENT KM-0
+			</div>
 		</div>
 	</body>
 </html>

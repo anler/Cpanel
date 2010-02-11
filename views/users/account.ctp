@@ -1,9 +1,9 @@
-<h2><?php echo __('My Settings', true) ?></h2>
-
-<br />
-
-<p>
-	Username: <?php echo $username ?>
+<p class="credentials">
+	username: <?php echo $username ?>
+	<br />
+	last login: <?php echo $time->niceShort($lastLogin) ?>
+	<br />
+	last login IP: <?php echo $lastLoginIP ?>
 </p>
 
 <br />

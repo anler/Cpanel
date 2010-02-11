@@ -1,4 +1,4 @@
-<?php echo $form->create('User', array('url' => array('controller' => 'users', 'action' => 'setup'))) ?>
+<?php echo $form->create('CpanelUser', array('url' => array('controller' => 'users', 'action' => 'setup'))) ?>
 	<fieldset>
 		<legend>Setup</legend>
 		<div id="validation-errors">

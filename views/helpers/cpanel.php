@@ -14,12 +14,55 @@
 		/**
 		 * 
 		 */
-		function appCredentials() {
+		function appCredentials($attrs = array()) {
 			$output = '';
-			$output .= $this->Html->image(Configure::read('credentials.logo'));
-			$output .= '<h1>' . Configure::read('credentials.title') . '</h1>';
+			
+			$appName = Configure::read('credentials.title');
+			$appImg = Configure::read('credentials.logo');
+			
+			$image = $this->Html->image($appImg);
+			$header = $this->Html->tag('h1', $appName);
+			
+			$output .= sprintf($this->Html->tags['block'], $this->_parseAttributes($attrs), "\n$image\n$header\n");
 
 			return $output;
+		}
+		
+		/**
+		 * 
+		 */
+		function userActions($attrs = array()) {
+			$output = '';
+			
+			$dashboard 	= $this->dashboard();
+			$account	= $this->account();
+			$logout 	= $this->logout();
+			
+			$links = array();
+			foreach (array($dashboard, $account, $logout) as $link) {
+				$links[] = sprintf($this->Html->tags['li'], null, "\n$link\n");
+			}
+			
+			if (!empty($links)) {
+				$output .= sprintf($this->Html->tags['ul'], $this->_parseAttributes($attrs), implode("\n", $links));
+			}
+			
+			return $output;
+		}
+		
+		/**
+		 * 
+		 */
+		function css() {
+			$file = new File(CSS_URL . 'cpanel.css');
+			
+			$css = $this->Html->css('/cpanel/css/cpanel.css');
+			
+			if ($file->exists()) {
+				$css = $this->Html->css('cpanel.css');
+			}
+			
+			return $css;
 		}
 		
 		/**
@@ -30,7 +73,15 @@
 				$text = __('Dashboard', true);
 			}
 			
-			return $this->Html->link($text, $this->Cpanel->dashboardRoute, array('id' => 'dashboard', 'class' => 'top-options'));
+			$attrs = array('id' => 'dashboard', 'class' => 'top-options');
+			
+			if ($this->params['plugin'] == Cpanel::getInstance()
+					&& $this->params['action'] == 'dashboard') {
+				$attrs['class'] .= ' active';
+			}
+			
+			$output = $this->Html->link($text, array('controller' => 'control_panel', 'action' => 'dashboard'), $attrs);
+			return $output;
 		}
 		
 		/**
@@ -41,7 +92,15 @@
 				$text = __('My Account', true);
 			}
 			
-			return $this->Html->link($text, array('controller' => 'users', 'action' => 'account'), array('id' => 'my-account', 'class' => 'top-options'));
+			$attrs = array('id' => 'my-account', 'class' => 'top-options');
+			
+			if ($this->params['plugin'] == Cpanel::getInstance()
+					&& $this->params['action'] == 'account') {
+				$attrs['class'] .= ' active';
+			}
+			
+			$output = $this->Html->link($text, array('controller' => 'users', 'action' => 'account'), $attrs);
+			return $output;
 		}
 		
 		/**
@@ -59,7 +118,7 @@
 		/**
 		 * 
 		 */
-		function navigationList() {
+		function navigationList($attrs = array()) {
 			$output = '';
 			
 			$output .= $this->_adminMenuTools();
@@ -82,6 +141,8 @@
 				$output .= $this->Tree->generate($sectionPath, array('model' => 'CpanelMenu', 'element' => 'menu/cpanel_menu', 'autoPath' => $autoPath));
 			}
 			
+			$output = sprintf($this->Html->tags['ul'], $this->_parseAttributes($attrs), "\n$output\n");
+			
 			return $output;
 		}
 		
@@ -89,7 +150,7 @@
 		/**
 		 * 
 		 */
-		function crumbs($separator = ' > ') {
+		function crumbs($separator = '&nbsp;&raquo;&nbsp;', $attrs = array()) {
 			$this->Html->addCrumb(__('Control Panel', true), $this->Cpanel->dashboardRoute);
 			
 			if (isset($this->params['section'])) {
@@ -120,7 +181,8 @@
 				}
 			}
 			
-			return $this->Html->getCrumbs($separator);
+			$breadcrumbs = sprintf($this->Html->tags['block'], $this->_parseAttributes($attrs), $this->Html->getCrumbs($separator));
+			return $breadcrumbs;
 		}
 		
 		/**
@@ -133,12 +195,15 @@
 		/**
 		 * 
 		 */
-		function sectionTabs() {
+		function sectionTabs($attrs = array()) {
 			if ($this->isCpanel()) {
 				return;
 			}
 			
-			$output = $this->_buildTabs(array('depth' => 0, 'autoPath' => true), array('element' => 'menu/cpanel_menu', 'model' => 'CpanelMenu'));
+			$attrs['element']	= 'menu/cpanel_menu';
+			$attrs['model']		= 'CpanelMenu';
+			
+			$output = $this->_buildTabs(array('depth' => 0, 'autoPath' => true), $attrs);
 			
 			return $output;
 		}
@@ -146,16 +211,17 @@
 		/**
 		 * 
 		 */
-		function sectionSubTabs($options = array()) {
+		function sectionSubTabs($attrs = array()) {
 			if ($this->isCpanel()) {
 				return;
 			}
 			
-			$output = $this->_buildTabs(array('depth' => 1, 'autoPath' => true), array('element' => 'menu/cpanel_menu', 'model' => 'CpanelMenu'));
+			$output = '';
 			
-			if (!empty($output)) {
-				$output = sprintf($this->Html->tag['block'], $this->_parseAttributes($options), "\n$output\n");
-			}
+			$attrs['element']	= 'menu/cpanel_menu';
+			$attrs['model']		= 'CpanelMenu';
+			
+			$output .= $this->_buildTabs(array('depth' => 1, 'autoPath' => true), $attrs);
 			
 			return $output;
 		}
@@ -163,7 +229,7 @@
 		/**
 		 * 
 		 */
-		function sectionActions($options = array()) {
+		function sectionActions($attrs = array()) {
 			if ($this->isCpanel()) {
 				return;
 			}
@@ -178,15 +244,16 @@
 			$output = '';
 			
 			$actions = $this->_findControllerActions($this->Menu->findSectionFromUrl($this->params['section']));
-			$links = array();
 			
+			$links = array();
 			foreach ($actions as $action) {
 				$link = $this->Html->link($action['name'], $action['route']);
-				$links[] = sprintf($this->Html->tags['li'], '', $link);
+				$links[] = sprintf($this->Html->tags['li'], null, $link);
 			}
 			
-			$output .= sprintf($this->Html->tags['ul'], '', implode("\n", $links));
-			$output = sprintf($this->Html->tags['block'], $this->_parseAttributes($options), $output);
+			if (!empty($links)) {
+				$output .= sprintf($this->Html->tags['ul'], $this->_parseAttributes($attrs), implode("\n", $links));
+			}
 			
 			return $output;
 		}
@@ -195,13 +262,15 @@
 		/**
 		 * 
 		 */
-		function sectionTitle() {
+		function sectionTitle($attrs = array()) {
 			$title = isset($this->params['section']) ? 
 							Inflector::humanize($this->params['section']) 
 							:
 							Inflector::humanize($this->params['controller']);
-							
-			return $title;
+			
+			$output = $this->Html->tag('h2', $title, $attrs);
+			
+			return $output;
 		}
 		
 		// Configuration
@@ -225,9 +294,16 @@
 		function _adminMenuTools() {
 			$output = '';
 			if (Configure::read('debug')) {
-				$output .= '<li>';
-				$output .= $this->Html->link(__('Menu', true), $this->Cpanel->listMenuSectionsRoute);
-				$output .= '</li>';
+				$attrs = array();
+				
+				if ($this->params['plugin'] == $this->Cpanel->pluginName
+						&& $this->params['controller'] == 'menu') {
+					$attrs['class'] = 'active';
+				}
+				
+				$link = $this->Html->link(__('Menu', true), array('controller' => 'menu'));
+				
+				$output = sprintf($this->Html->tags['li'], $this->_parseAttributes($attrs), $link);
 			}
 			
 			return $output;

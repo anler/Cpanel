@@ -66,6 +66,11 @@
 					$this->controller->redirect(Cpanel::getInstance()->setupRoute);
 				}
 				
+				if (!$setupMode) {
+					// Keep plugin actions save
+					$this->controller->Auth->deny($this->controller->params['action']);
+				}
+				
 				$this->controller->layout = $this->_layout();
 			}
 
