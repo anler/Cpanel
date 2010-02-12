@@ -16,20 +16,86 @@
 		/**
 		 * 
 		 */
+		function index() {
+			$this->set('users', $this->CpanelUser->findAll());
+		}
+		
+		/**
+		 * 
+		 */
+		function register_user() {
+			if (!empty($this->data)) {
+				
+				$this->data['CpanelUser']['repassword'] = $this->data['CpanelUser']['password'] = $this->CpanelUser->getRandomizedPassword();
+				
+				if ($this->CpanelUser->save($this->data)) {
+					if (!$this->_sendPasswordByEmail($this->data['CpanelUser']['username'], $this->data['CpanelUser']['email'], $this->data['CpanelUser']['password'])) {
+						$this->Session->setFlash(__('Email could not be sended right now. Please, try again later', true), $this->notice);
+					} else {
+						$this->Session->setFlash(__('Account created', true), $this->success);
+					}
+					
+					$this->redirect(array('action' => 'index'));
+				}
+				
+				$this->Session->setFlash(__('Some errors prevented create the user account.', true));
+			}
+		}
+		
+		function password_forgotten() {
+			if ($this->Auth->user()) {
+				$this->redirect(array('action' => 'account'));
+			}
+			
+			if (!empty($this->data)) {
+				if ($user = $this->CpanelUser->findByUsername($this->data['CpanelUser']['username'])) {
+					
+					if ($newPassword = $this->CpanelUser->resetPassword($user['CpanelUser']['id'])) {
+						
+						if ($emailSended = $this->_sendPasswordByEmail($user['CpanelUser']['username'], $user['CpanelUser']['email'], $newPassword)) {
+							$this->render('password_changed');
+						}
+						
+						$this->Session->setFlash(__('We can\'t email you the password right now. Please, try again later', true), $this->notice);
+						
+					} else {
+						$this->Session->setFlash(__('Password could not be saved. Please, try again.', true), $this->failure);
+					}
+					
+				} else {
+					$this->Session->setFlash(__('The user name provided not exists', true), $this->failure);
+				}
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		function reset_password($id = null) {
+			$this->_redirectIfInvalid($id);
+			
+			if (!empty($this->data)) {
+				
+			}
+		}
+		
+		/**
+		 * 
+		 */
 		function setup() {
 			if (!empty($this->data)) {
-				if ($this->CpanelUser->setup($this->data)) {
+				if ($this->CpanelUser->save($this->data)) {
 					$this->Session->setFlash(__('The Root account has been created, now you can login.', true));
 					$this->redirect(array('action' => 'login'));
 				}
-					$this->Session->setFlash(__('The Root account can\'t be created. Check if you fill the form correctly.', true));
-					$this->data['User']['password'] = $this->data['User']['repassword'] = '';
+				$this->Session->setFlash(__('Some errors prevented create the Root account.', true));
+				$this->data['CpanelUser']['password'] = $this->data['CpanelUser']['repassword'] = '';
 			}
 		}
 		
 		function account() {
 			if (!empty($this->data)) {
-				if ($this->CpanelUser->update($this->data)) {
+				if ($this->CpanelUser->save($this->data)) {
 					$this->Session->setFlash(__('Changes Saved', true), $this->success);
 				} else {
 					$this->Session->setFlash(__('Changes not saved', true), $this->failure);
@@ -68,6 +134,43 @@
 		 */
 		function logout() {
 			$this->redirect($this->Auth->logout());
+		}
+		
+		/**
+		 * 
+		 */
+		function delete($id = null) {
+			$this->_redirectIfInvalid($id, __('Invalid id for user', true));
+			
+			if ($this->CpanelUser->delete($id)) {
+				$this->Session->setFlash(__('User deleted', true), $this->success);
+			} else {
+				$this->Session->setFlash(__('User cannot be deleted', true), $this->failure);
+			}
+			
+			$this->redirect($this->referer());
+		}
+		
+		// Private
+		
+		/**
+		 * 
+		 */
+		function _sendPasswordByEmail($username, $email, $password) {
+			if (!array_key_exists('Email', $this->components)) {
+				trigger_error('CPanel::UsersController - Email component is required', E_USER_ERROR);
+			}
+			
+			$this->Email->to = $email;
+			$this->Email->subject = 'Test Credentials';
+			$this->Email->from = 'noreply@test.com';
+			
+			$this->set(compact('username', 'password'));
+
+			$this->Email->send();
+			$sended = !$this->Email->smtpError;
+			
+			return $sended;
 		}
 	}
 ?>

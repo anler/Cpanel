@@ -45,35 +45,57 @@
 				$this->controller->Auth->loginAction   = Cpanel::getInstance()->loginRoute;
 				$this->controller->Auht->loginRedirect = Cpanel::getInstance()->dashboardRoute;
 				
-				// Enforce use of Cpanel function actions without 'Routing.admin' prefix
-				if ($this->_usingCpanel()) {
-					$this->controller->params['action'] = r(Cpanel::getInstance()->routingAdmin . '_', '', $this->controller->params['action']);
-					
-					foreach (array('login', 'setup', 'account') as $publicAdminAction) {
-						($this->controller->params['action'] == $publicAdminAction) && $this->controller->Auth->allow($publicAdminAction);
-						(in_array($this->controller->params['action'], array('setup', 'account'))) && ($this->controller->Auth->authenticate = $this->userModel);
-					}
-				}
-				
 				// See if create the root account is needed
 				// @todo Caching
 				// 		 Check if users table exists
-				$result = $this->userModel->find('first', array('fields' => array('id')));
-				$setupMode = Cpanel::getInstance()->setupMode = empty($result);
+				$result				= $this->userModel->find('first', array('fields' => array('id')));
+				$this->setupMode 	= Cpanel::getInstance()->setupMode = empty($result);
 				
 				// If setup needed, redirect to setup page
-				if ($setupMode && !$this->_setupAction()) {
+				if ($this->setupMode && !$this->_setupAction()) {
 					$this->controller->redirect(Cpanel::getInstance()->setupRoute);
 				}
 				
-				if (!$setupMode) {
-					// Keep plugin actions save
-					$this->controller->Auth->deny($this->controller->params['action']);
+				if ($this->_usingCpanel()) {
+					// Enforce use of Cpanel function actions without 'Routing.admin' prefix
+					$this->controller->params['action'] = r(Cpanel::getInstance()->routingAdmin . '_', '', $this->controller->params['action']);
+					
+					// Deny direct access to plugin
+					$this->controller->Auth->deny($this->controller->action);
+					
+					if ($this->_filterActionThroughWhitelist($this->controller->action)) {
+						$this->controller->Auth->allow($this->controller->action);
+					}
+					
+					if ($this->_filterActionThroughCustomAuth($this->controller->action)) {
+						$this->controller->Auth->authenticate = $this->userModel;
+					}
 				}
 				
 				$this->controller->layout = $this->_layout();
 			}
 
+		}
+		
+		function _filterActionThroughWhiteList($action) {
+			$allowed = array('login', 'password_forgotten');
+			
+			if ($this->setupMode) {
+				$allowedOnSetup = array('setup');
+				$allowed = array_merge($allowed, $allowedOnSetup);
+			}
+			
+			$isAllowed = in_array($action, $allowed);
+			
+			return $isAllowed;
+		}
+		
+		function _filterActionThroughCustomAuth($action) {
+			$customAuthActions = array('setup', 'register_user', 'account');
+			
+			$customAuth = in_array($action, $customAuthActions);
+			
+			return $customAuth;
 		}
 		
 		function _adminRequest() {

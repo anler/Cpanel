@@ -63,21 +63,6 @@
 		
 		
 		// Private
-		function _redirectToIndex($message = '', $layout = null) {
-			if ($message) {
-				$this->Session->setFlash($message, $layout);
-			}
-			$this->redirect(array('action' => 'index'));
-		}
-		
-		function _redirectIfInvalid($id) {
-			if (null === $id || !is_numeric($id)) {
-				$this->Session->setFlash(__('Invalid id for section.', true), $this->notice);
-				$this->redirect(array('action' => 'index'));
-			}
-			
-			return;
-		}
 		
 		/**
 		 * 

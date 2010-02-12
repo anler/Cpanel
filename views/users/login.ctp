@@ -8,5 +8,6 @@
 		
 		<?php echo $form->input('username', array('label' => __('Username:', true), 'id' => 'cpanelUsername')) ?>
 		<?php echo $form->input('password', array('label' => __('Password:', true), 'id' => 'cpanelPassword')) ?>
+		<?php echo $html->link(__('Ahhh, you forgot', true), array('action' => 'password_forgotten')) ?>
 	</fieldset>	
 <?php echo $form->end(__('Login', true)) ?>

@@ -301,10 +301,25 @@
 					$attrs['class'] = 'active';
 				}
 				
-				$link = $this->Html->link(__('Menu', true), array('controller' => 'menu'));
+				$menu = $this->Html->link(__('Menu', true), array('controller' => 'menu', 'plugin' => 'cpanel'));
 				
-				$output = sprintf($this->Html->tags['li'], $this->_parseAttributes($attrs), $link);
+				$output .= sprintf($this->Html->tags['li'], $this->_parseAttributes($attrs), "\n$menu\n");
 			}
+			
+			$adminSection = $this->Html->link(__('Administration', true), array('controller' => 'control_panel', 'action' => 'dashboard', 'plugin' => 'cpanel'));
+			
+			$users 	= $this->Html->link(__('Users', true), array('controller' => 'users', 'action' => 'index', 'plugin' => 'cpanel'));
+			$logs	= $this->Html->link(__('Logs', true), array('controller' => 'control_panel', 'action' => 'logs', 'plugin' => 'cpanel'));
+			$info	= $this->Html->link(__('System Info', true), array('controller' => 'control_panel', 'action' => 'system', 'plugin' => 'cpanel'));
+			
+			$users 	= sprintf($this->Html->tags['li'], null, "\n$users\n");
+			$logs 	= sprintf($this->Html->tags['li'], null, "\n$logs\n");
+			$info	= sprintf($this->Html->tags['li'], null, "\n$info\n");
+			
+			$adminActions = sprintf($this->Html->tags['ul'], null, "\n$users\n$logs\n$info\n");
+			
+			$output .= sprintf($this->Html->tags['li'], null, "\n$adminSection\n$adminActions");
+			$output = sprintf($this->Html->tags['ul'], null, $output);
 			
 			return $output;
 		}
