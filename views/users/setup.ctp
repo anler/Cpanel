@@ -1,4 +1,4 @@
-<?php echo $form->create('CpanelUser', array('url' => array('controller' => 'users', 'action' => 'register_user'))) ?>
+<?php echo $form->create('CpanelUser', array('url' => array('controller' => 'users', 'action' => 'setup'))) ?>
 	<fieldset>
 		<legend><?php __('Root Account Setup', true) ?></legend>
 		
